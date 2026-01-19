@@ -6,8 +6,8 @@
 
 /* BODY */
 .body{
-  background: #f4f6f8;
-  /* height: 100vh; */
+  background: white;
+  height: 100vh;
   width: 100vw;
   overflow: hidden;
 }
@@ -111,9 +111,11 @@ nav .barbtn:hover{
 }
 .card-box{
   display: grid;
+    flex-direction: column;
   grid-template-columns: repeat(4, 1fr);
   gap: 15px;
   padding: 10px;
+  background-color: transparent;
 }
 
 /* Card Base */
@@ -125,6 +127,7 @@ nav .barbtn:hover{
   justify-content: space-between;
   padding: 15px;
   color: #fff;
+
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -184,12 +187,13 @@ nav .barbtn:hover{
   height: 70vh;
  display: flex;
  gap: 10px;
+ background-color: white;
 }
 .transaction-page{
   margin-left: 10px;
   width: 58vw;
   height: 100%;
-  background-color: rgb(216, 213, 213);
+  background-color: rgb(238, 233, 233);
   border-radius: 10px;
   overflow-y: scroll;
 }
@@ -200,13 +204,9 @@ nav .barbtn:hover{
   padding-left: 30px;
   font-size: 18px;
 }
-.transaction-details{
-  height: 10vh;
-  width: 100%;
-  background-color: white;
-}
+ 
 .chart-page{
-  width: 20vw;
+  width: 23vw;
   height: 100%;
   background-color: rgb(228, 226, 226);
   border-radius: 10px;
@@ -268,6 +268,18 @@ nav .barbtn:hover{
   .slide-menu.active{
     transform: translateX(0);
   }
+.card-box{
+display: grid;
+grid-template-columns: repeat(2,1fr);
+gap: 12px;
+}
+.card{
+  padding: 15px;
+  height: auto;
+}
+.card h3{
+  font-size: 14px;
+}
 
   .main-page{
     width: 100%;
