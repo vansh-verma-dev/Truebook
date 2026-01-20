@@ -34,7 +34,7 @@ function dashboard(){
 // ------------------Voucher page-------------------
 function Vouchers(){
   document.querySelector('.main-page').innerHTML =`
-  <p>voucher</p>
+ 
   `
 };
 // ----------------Transaction page--------------------
