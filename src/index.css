@@ -2,6 +2,14 @@
  @tailwind components;
  @tailwind utilities;
 
+ .sidebar-btn{
+  @apply w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all duration-300;
+}
+
+.submenu-btn{
+  @apply text-left text-sm text-gray-400 hover:text-orange-400 transition-all duration-300;
+}
+
  body {
      margin: 0;
      padding: 0;
