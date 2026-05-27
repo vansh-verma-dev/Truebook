@@ -19,7 +19,7 @@ function Sidebar() {
     const [openAlter, setOpenAlter] = useState(false);
 
     return (
-        <aside className="w-[280px] h-screen bg-[#101828] border-r border-white/10 flex flex-col justify-between p-5">
+        <aside className="w-[280px] h-[90vh] bg-[#101828] border-r border-white/10 flex flex-col justify-between p-5">
 
 
             <div>
@@ -31,8 +31,6 @@ function Sidebar() {
                         <LayoutDashboard size={20} />
                         Dashboard
                     </button>
-
-
                     <div>
 
                         <button
@@ -138,6 +136,11 @@ function Sidebar() {
                     <button className="sidebar-btn">
                         <FileBarChart size={20} />
                         Reports
+                    </button>
+
+                    <button className="sidebar-btn">
+                        <Settings size={20} />
+                        Company
                     </button>
 
                     <button className="sidebar-btn">
