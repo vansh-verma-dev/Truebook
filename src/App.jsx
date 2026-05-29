@@ -4,9 +4,10 @@ import Sidebar from "./components/Sidebar";
 import Dashboard from "./Pages/Dashboard";
 import Company from "./Pages/company";
 import CompnayCreate from "./Pages/CompanyCreate";
+import Daybook from "./Pages/DayBook";
 
 function App() {
-    const [activePage, setActivePage] = useState("CreateCompnay");
+    const [activePage, setActivePage] = useState("Daybook");
 
     return (
         <section className="w-full h-[100vh]">
@@ -32,6 +33,10 @@ function App() {
                         {
                             activePage === "CreateCompnay" && 
                             <CompnayCreate/>
+                        }
+                        {
+                            activePage === "Daybook" && 
+                            <Daybook/>
                         }
 
                     </section>

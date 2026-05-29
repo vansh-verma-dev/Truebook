@@ -144,14 +144,12 @@ function CompForm() {
                         type="submit"
                         className="
                         flex items-center gap-2
-
-                        bg-orange-500
-                        hover:bg-orange-600
-
+                  hover:bg-orange-600
+bg-orange-600
                         text-white
                         font-medium
 
-                        px-6 py-3
+                        px-4 py-2
                         rounded-2xl
 
                         shadow-lg shadow-orange-500/20
@@ -160,7 +158,7 @@ function CompForm() {
                     "
                     >
                         <MdSaveAs className="text-lg" />
-                        Save Company
+                        Save Company  
                     </button>
 
                 </div>

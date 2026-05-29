@@ -129,7 +129,9 @@ function Sidebar({setActivePage }) {
                     </button>
 
 
-                    <button className="sidebar-btn">
+                    <button className="sidebar-btn"
+                     onClick={() => setActivePage("Daybook")}
+                    >
                         <BookOpen size={20} />
                         Day Book
                     </button>

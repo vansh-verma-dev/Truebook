@@ -13,7 +13,7 @@ const CompanyData = [
     state: "Uttar Pradesh",
     country: "India",
     pincode: "201309",
-    companyType: "Private Limited",
+    companyType: "Iron Private Limited",
     industry: "Accounting Software",
     website: "www.truebook.in",
     accountNumber: "458796321457",
