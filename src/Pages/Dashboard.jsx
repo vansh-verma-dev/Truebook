@@ -3,12 +3,13 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import MainPage from "./mainPage";
-import SigninPage from "../UserAccount/signin";
+import Account from "../UserAccount/userpage";
 
 
 
 function Dashboard() {
   const [main, setMain] = useState(true);
+  const [user , setUser] = useState(true);
 
   return (
     <section className="bg-[#0F172A] w-full h-[100vh]">
@@ -18,7 +19,7 @@ function Dashboard() {
         <Sidebar />
 
         <div>
-          <SigninPage />
+           {!user? <Account/> : <MainPage/>}
         </div>
 
 

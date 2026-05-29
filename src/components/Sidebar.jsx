@@ -19,7 +19,7 @@ function Sidebar() {
     const [openAlter, setOpenAlter] = useState(false);
 
     return (
-        <aside className="w-[280px] h-[90vh] bg-[#101828] border-r border-white/10 flex flex-col justify-between p-5">
+        <aside className="w-[280px] h-[90vh] bg-[#101828] border-r border-white/10 hidden sm:flex flex-col justify-between p-5">
 
 
             <div>

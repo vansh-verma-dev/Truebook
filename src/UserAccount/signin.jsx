@@ -1,13 +1,14 @@
 import { FcGoogle } from "react-icons/fc";
-
+import { Link } from "react-router-dom";
+ 
 function SigninPage() {
     return (
         <section className="flex w-[80vw]  h-full overflow-hidden  bg-white">
- 
+
             <div className="left w-[45%] bg-orange-500">
-               
+
             </div>
- 
+
             <div className="right w-[55%] bg-gradient-to-br from-white to-orange-50 flex items-center justify-center p-2">
 
                 <div className="w-full pl-5 pr-5">
@@ -20,7 +21,7 @@ function SigninPage() {
                             Please login to continue and enjoy the experience.
                         </p>
                     </div>
- 
+
                     <form className="flex flex-col gap-2">
                         <div className="flex flex-col gap-2">
                             <label
@@ -39,7 +40,7 @@ function SigninPage() {
                             />
                         </div>
 
-                   
+
                         <div className="flex flex-col gap-2">
                             <label
                                 htmlFor="Password"
@@ -57,7 +58,7 @@ function SigninPage() {
                             />
                         </div>
 
-                   
+
                         <div className="flex justify-between items-center text-sm">
 
                             <label className="flex items-center gap-2 text-gray-600 cursor-pointer">
@@ -73,12 +74,12 @@ function SigninPage() {
                             </p>
                         </div>
 
-                  
+
                         <button className="bg-black hover:bg-gray-800 transition-all duration-300 text-white p-3 text-lg font-semibold rounded-xl shadow-lg hover:scale-[1.02] active:scale-[0.98]">
                             Login
                         </button>
 
-                    
+
                         <div className="flex items-center gap-3 my-2">
 
                             <div className="flex-1 h-[1px] bg-gray-300"></div>
@@ -90,7 +91,7 @@ function SigninPage() {
                             <div className="flex-1 h-[1px] bg-gray-300"></div>
                         </div>
 
-                    
+
                         <button
                             type="button"
                             className="border border-gray-300 bg-white hover:bg-gray-50 transition-all duration-200 p-3 flex items-center justify-center gap-3 rounded-xl shadow-sm font-medium text-gray-700"
@@ -99,12 +100,16 @@ function SigninPage() {
                             Continue with Google
                         </button>
 
-                    
+
                         <p className="text-center text-gray-500 text-sm mt-2">
                             Don&apos;t have an account?{" "}
-                            <span className="font-bold text-orange-500 cursor-pointer hover:underline">
+
+                            <Link
+                                to="/signup"
+                                className="font-bold text-orange-500 hover:underline"
+                            >
                                 Sign up here
-                            </span>
+                            </Link>
                         </p>
                     </form>
                 </div>
