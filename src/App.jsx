@@ -3,9 +3,10 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./Pages/Dashboard";
 import Company from "./Pages/company";
+import CompnayCreate from "./Pages/CompanyCreate";
 
 function App() {
-    const [activePage, setActivePage] = useState("company");
+    const [activePage, setActivePage] = useState("CreateCompnay");
 
     return (
         <section className="w-full h-[100vh]">
@@ -28,7 +29,10 @@ function App() {
                             activePage === "voucher" &&
                             <Voucher />
                         }
-                        
+                        {
+                            activePage === "CreateCompnay" && 
+                            <CompnayCreate/>
+                        }
 
                     </section>
                 </section>
