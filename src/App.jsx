@@ -1,36 +1,38 @@
-import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
-
+import { useState } from "react";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
 import Dashboard from "./Pages/Dashboard";
-import SplashScreen from "./Pages/SplashScreen";
-import SignupPage from "./UserAccount/signup";
-import SigninPage from "./UserAccount/signin";
+import Company from "./Pages/company";
 
 function App() {
+    const [activePage, setActivePage] = useState("company");
 
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 3000);
-
-        return () => clearTimeout(timer);
-
-    }, []);
-
-    if (loading) {
-        return <SplashScreen />;
-    }
-
-   
     return (
-        <Routes>
-            <Route path="/" element={<Dashboard />} />
+        <section className="w-full h-[100vh]">
+            <Navbar />
+            <main className="overflow-hidden w-full h-100vh flex bg-[#030316] ">
+                <Sidebar setActivePage={setActivePage} />
+                <section className="mainpage">
+                    <section className="mainpage">
+                        {
+                            activePage === "Dashboard" &&
+                            <Dashboard />
+                        }
 
-        </Routes>
-    );
+                        {
+                            activePage === "company" &&
+                            <Company />
+                        }
+
+                        {
+                            activePage === "voucher" &&
+                            <Voucher />
+                        }
+
+                    </section>
+                </section>
+            </main>
+        </section>
+    )
 }
-
 export default App;

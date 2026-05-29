@@ -12,14 +12,14 @@ import {
     ChevronDown,
     ChevronRight,
 } from "lucide-react";
-
-function Sidebar() {
+ 
+function Sidebar({setActivePage }) {
 
     const [openCreate, setOpenCreate] = useState(false);
     const [openAlter, setOpenAlter] = useState(false);
 
     return (
-        <aside className="w-[280px] h-[90vh] bg-[#101828] border-r border-white/10 hidden sm:flex flex-col justify-between p-5">
+        <aside className="w-[280px] h-[100vh] bg-[#101828] border-r border-white/10 hidden sm:flex flex-col justify-between p-5">
 
 
             <div>
@@ -27,7 +27,9 @@ function Sidebar() {
                 <nav className="flex flex-col gap-2">
 
 
-                    <button className="sidebar-btn bg-orange-500 text-white">
+                    <button className="sidebar-btn bg-orange-500 text-white"
+                     onClick={() => setActivePage("Dashboard")}
+                    >
                         <LayoutDashboard size={20} />
                         Dashboard
                     </button>
@@ -138,10 +140,14 @@ function Sidebar() {
                         Reports
                     </button>
 
-                    <button className="sidebar-btn">
+               
+                    <button className="sidebar-btn"
+                      onClick={() => setActivePage("company")}
+                    >
                         <Settings size={20} />
                         Company
                     </button>
+                
 
                     <button className="sidebar-btn">
                         <Settings size={20} />
