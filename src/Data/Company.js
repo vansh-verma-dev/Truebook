@@ -1,4 +1,4 @@
-const companyData = [
+const CompanyData = [
 
   {
     id: 1,
@@ -109,5 +109,7 @@ const companyData = [
     createdDate: "05 Feb 2019",
     status: "Active",
   },
+  
 
 ];
+export default CompanyData;
