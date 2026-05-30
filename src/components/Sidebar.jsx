@@ -12,8 +12,8 @@ import {
     ChevronDown,
     ChevronRight,
 } from "lucide-react";
- 
-function Sidebar({setActivePage }) {
+
+function Sidebar({ setActivePage }) {
 
     const [openCreate, setOpenCreate] = useState(false);
     const [openAlter, setOpenAlter] = useState(false);
@@ -28,7 +28,7 @@ function Sidebar({setActivePage }) {
 
 
                     <button className="sidebar-btn bg-orange-500 text-white"
-                     onClick={() => setActivePage("Dashboard")}
+                        onClick={() => setActivePage("Dashboard")}
                     >
                         <LayoutDashboard size={20} />
                         Dashboard
@@ -130,7 +130,7 @@ function Sidebar({setActivePage }) {
 
 
                     <button className="sidebar-btn"
-                     onClick={() => setActivePage("Daybook")}
+                        onClick={() => setActivePage("Daybook")}
                     >
                         <BookOpen size={20} />
                         Day Book
@@ -142,14 +142,14 @@ function Sidebar({setActivePage }) {
                         Reports
                     </button>
 
-               
+
                     <button className="sidebar-btn"
-                      onClick={() => setActivePage("company")}
+                        onClick={() => setActivePage("company")}
                     >
                         <Settings size={20} />
                         Company
                     </button>
-                
+
 
                     <button className="sidebar-btn">
                         <Settings size={20} />
@@ -158,8 +158,10 @@ function Sidebar({setActivePage }) {
 
                 </nav>
 
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all duration-300">
-                    <LogOut size={20} />
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all duration-300"
+                   onClick={() => setActivePage("Account")}
+                >
+                    <LogOut size={20}/>
                     Logout
                 </button>
             </div>

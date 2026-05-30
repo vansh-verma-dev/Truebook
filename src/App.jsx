@@ -5,10 +5,11 @@ import Dashboard from "./Pages/Dashboard";
 import Company from "./Pages/company";
 import Daybook from "./Pages/DayBook";
 import CreateCompany from "./Pages/CompanyCreate";
- 
+import Account from "./UserAccount/userpage";
+
 function App() {
-  
-    const [activePage, setActivePage] = useState("company");
+
+    const [activePage, setActivePage] = useState("Dashboard");
     return (
         <section className="w-full h-[100vh]">
             <Navbar />
@@ -32,11 +33,15 @@ function App() {
                         }
                         {
                             activePage === "CreateCompany" &&
-                      <CreateCompany/>
+                            <CreateCompany />
                         }
                         {
                             activePage === "Daybook" &&
                             <Daybook />
+                        }
+                        {activePage === "Account" && (
+                            <Account />
+                        )
                         }
                     </section>
                 </section>

@@ -1,9 +1,9 @@
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
- 
-function SigninPage() {
+
+function SigninPage({ setMode }) {
     return (
-        <section className="flex w-[80vw]  h-full overflow-hidden  bg-white">
+        <section className="flex w-[80vw]  h-[90vh] overflow-hidden  bg-white">
 
             <div className="left w-[45%] bg-orange-500">
 
@@ -104,12 +104,15 @@ function SigninPage() {
                         <p className="text-center text-gray-500 text-sm mt-2">
                             Don&apos;t have an account?{" "}
 
-                            <Link
-                                to="/signup"
-                                className="font-bold text-orange-500 hover:underline"
+                            <button className="font-bold text-orange-500 hover:underline"
+                                onClick={() => setMode("signup")}
                             >
                                 Sign up here
-                            </Link>
+                            </button >
+
+
+
+
                         </p>
                     </form>
                 </div>

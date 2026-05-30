@@ -1,13 +1,17 @@
-import { Routes, Route } from "react-router-dom";
-import SigninPage from "./signin";
-import SignupPage from "./signup";
-function Account(){
-return(
-      <Routes>
-            {/* Auth Pages */}
-            <Route path="/" element={<SignupPage/>} />
-            <Route path="/signin" element={<SigninPage />} />
-        </Routes>
-)
+import { useState } from "react";
+import SigninPage from "./signin"
+import  SignupPage  from "./signup";
+
+function Account({ setActivePage }) {
+     const [mode, setMode] = useState("signup"); 
+      return (
+            <div>
+            { mode === "signin" ? (
+                  <SigninPage setMode={setMode} />
+            ) : (
+                  <SignupPage setMode={setMode} />
+            )}
+    </div >
+      )
 }
 export default Account;
