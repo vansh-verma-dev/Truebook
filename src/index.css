@@ -56,3 +56,6 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+.companyForm::-webkit-scrollbar{
+  display: none;
+}

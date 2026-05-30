@@ -3,12 +3,12 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./Pages/Dashboard";
 import Company from "./Pages/company";
-import CompnayCreate from "./Pages/CompanyCreate";
 import Daybook from "./Pages/DayBook";
-
+import CreateCompany from "./Pages/CompanyCreate";
+ 
 function App() {
-    const [activePage, setActivePage] = useState("Daybook");
-
+  
+    const [activePage, setActivePage] = useState("company");
     return (
         <section className="w-full h-[100vh]">
             <Navbar />
@@ -23,7 +23,7 @@ function App() {
 
                         {
                             activePage === "company" &&
-                            <Company />
+                            <Company setActivePage={setActivePage} />
                         }
 
                         {
@@ -31,14 +31,13 @@ function App() {
                             <Voucher />
                         }
                         {
-                            activePage === "CreateCompnay" && 
-                            <CompnayCreate/>
+                            activePage === "CreateCompany" &&
+                      <CreateCompany/>
                         }
                         {
-                            activePage === "Daybook" && 
-                            <Daybook/>
+                            activePage === "Daybook" &&
+                            <Daybook />
                         }
-
                     </section>
                 </section>
             </main>
