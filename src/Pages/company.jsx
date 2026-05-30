@@ -5,7 +5,7 @@ import CompanyData from "../Data/Company";
 
 function Company({ setActivePage }) {
     return (
-        <section className="relative">
+      <section className=" w-full h-[95vh] relative m-0 p-0">
 
             {/* --Search-Input--- */}
            <Searchbar setActivePage={setActivePage} />

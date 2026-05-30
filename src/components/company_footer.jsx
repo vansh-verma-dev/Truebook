@@ -3,7 +3,7 @@ import { FaPlus, FaPen, FaFolderOpen } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 function Footer() {
     return (
-        <footer className=" bottom-0 w-[80vw] bg-[#1d2939]/90 backdrop-blur-md
+        <footer className=" absolute bottom-[42px] w-[80vw] bg-[#1d2939]/90 backdrop-blur-md
          px-5 py-4 flex items-center justify-between
         gap-4 ">
 

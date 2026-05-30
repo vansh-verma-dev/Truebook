@@ -9,8 +9,6 @@ function SignupPage({ setMode }) {
             <div className="left w-[45%] bg-orange-500">
 
             </div>
-
-
             <div className="right w-[55%] bg-gradient-to-br from-white to-orange-50 flex items-center justify-center px-6 py-3">
 
                 <div className="w-full max-w-sm">

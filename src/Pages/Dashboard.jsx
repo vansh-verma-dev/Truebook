@@ -25,7 +25,7 @@ function Dashboard() {
     };
 
     return (
-        <section className=" w-[100vw] sm:w-[80vw]">
+        <section className=" bg-[#1d2939] w-[80vw] h-[95vh]">
             <div className="relative w-full">
 
                 {/* Left Button */}

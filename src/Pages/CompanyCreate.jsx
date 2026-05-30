@@ -3,9 +3,9 @@ import { MdSaveAs } from "react-icons/md";
 
 function CreateCompany({ setActivePage }) {
     return (
-        <section>
+        <section className="h-[95vh]">
             {/* --Navbar-- */}
-            <nav className="w-[80vw] flex  items-center justify-between px-3 py-3  text-white bg-[#1d2939]">
+            <nav className="w-[80vw]  flex  items-center justify-between px-3 py-3  text-white bg-[#1d2939]">
                 <span>
                     <h1>Create New Company </h1>
                     <p className="text-xs text-gray-500">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, beatae!</p>
@@ -28,9 +28,9 @@ export const CompanyForm = () => {
   console.log("Company Saved");
 };
     return (
-        <section className="w-full  h-[80vh]   overflow-x-auto bg-[#0b1120] p-4 sm:p-6 companyForm">
+        <section className="w-full  h-[90vh]  overflow-x-auto bg-[#0b1120] p-4 sm:p-6 companyForm">
 
-            <form onSubmit={handleSubmit} className="max-w-5xl mx-auto flex flex-col gap-6">
+            <form onSubmit={handleSubmit} className=" pb-14  max-w-5xl mx-auto flex flex-col gap-6">
 
                 {/* ================= BASIC DETAILS ================= */}
                 <h2 className="text-orange-500 text-lg font-semibold tracking-wide">
