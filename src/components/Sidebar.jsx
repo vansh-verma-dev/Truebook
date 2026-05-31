@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaRegBuilding } from "react-icons/fa";
 
 import {
     LayoutDashboard,
@@ -148,7 +149,7 @@ function Sidebar({ setActivePage }) {
                     <button className="sidebar-btn"
                         onClick={() => setActivePage("company")}
                     >
-                        <Settings size={20} />
+                        <FaRegBuilding size={20} />
                         Company
                     </button>
 
