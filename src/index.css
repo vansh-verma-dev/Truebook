@@ -2,68 +2,73 @@
  @tailwind components;
  @tailwind utilities;
 
- .sidebar-btn{
-  @apply w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all duration-300;
-}
+ .sidebar-btn {
+   @apply w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all duration-300;
+ }
 
-.submenu-btn{
-  @apply text-left text-sm text-gray-400 hover:text-orange-400 transition-all duration-300;
-}
+ .submenu-btn {
+   @apply text-left text-sm text-gray-400 hover:text-orange-400 transition-all duration-300;
+ }
 
  body {
-     margin: 0;
-     padding: 0;
-     font-family: Inter, sans-serif;
-     height: 100vh;
-     width: 100vw;
-     overflow: hidden;
- background-color: #101828;
+   margin: 0;
+   padding: 0;
+   font-family: Inter, sans-serif;
+   height: 100vh;
+   width: 100vw;
+   overflow: hidden;
+   /* background-color: #101828; */
+ background-color: red;
  }
+
  /* index.css */
 
-.premium-input{
-  width: 100%;
-  height: 58px;
+ .premium-input {
+   width: 100%;
+   height: 58px;
 
-  background: #1d2939;
+   background: #1d2939;
 
-  border: 1px solid rgba(255,255,255,0.1);
+   border: 1px solid rgba(255, 255, 255, 0.1);
 
-  border-radius: 18px;
+   border-radius: 18px;
 
-  padding: 0 20px;
+   padding: 0 20px;
 
-  color: white;
+   color: white;
 
-  outline: none;
+   outline: none;
 
-  transition: 0.3s ease;
-}
+   transition: 0.3s ease;
+ }
 
-.premium-input::placeholder{
-  color: #6b7280;
-}
+ .premium-input::placeholder {
+   color: #6b7280;
+ }
 
-.premium-input:focus{
-  border-color: #f97316;
-}
+ .premium-input:focus {
+   border-color: #f97316;
+ }
 
-.hide-scrollbar::-webkit-scrollbar{
-  display: none;
-}
+ .hide-scrollbar::-webkit-scrollbar {
+   display: none;
+ }
 
-.hide-scrollbar{
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.companyForm::-webkit-scrollbar{
-  display: none;
-}
-input[type="date"] {
-  border: none;
-  background: transparent;
-  outline: none;
-}
-.vuch-box::-webkit-scrollbar{
-  display: none;
-}
+ .hide-scrollbar {
+   -ms-overflow-style: none;
+   scrollbar-width: none;
+ }
+
+ .companyForm::-webkit-scrollbar {
+   display: none;
+ }
+
+ input[type="date"] {
+   border: none;
+   background: transparent;
+   outline: none;
+ }
+
+ .vuch-box::-webkit-scrollbar {
+   display: none;
+ }

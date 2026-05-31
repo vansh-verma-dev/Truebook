@@ -123,7 +123,9 @@ function Sidebar({ setActivePage }) {
                     </div>
 
 
-                    <button className="sidebar-btn">
+                    <button className="sidebar-btn"
+                        onClick={() => setActivePage("Voucher")}
+                    >
                         <Receipt size={20} />
                         Voucher
                     </button>

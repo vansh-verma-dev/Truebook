@@ -83,6 +83,7 @@ function Dashboard() {
                 </div>
 
             </div>
+          
         </section>
     );
 }

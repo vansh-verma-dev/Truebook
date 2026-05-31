@@ -7,20 +7,21 @@ import Daybook from "./Pages/DayBook";
 import CreateCompany from "./Pages/CompanyCreate";
 import Account from "./UserAccount/userpage";
 import SplashScreen from "./Pages/SplashScreen";
+import Voucher from "./Vouchers/VoucherPage";
 
 function App() {
-const [loading ,setLoading]= useState(true);
+    const [loading, setLoading] = useState(true);
     const [activePage, setActivePage] = useState("Dashboard");
 
-  useEffect(()=>{
-    const time = setTimeout(() => {
-        setLoading(false);
-    }, 3000);
-    return ()=> clearTimeout(time)
-  },[]);
+    useEffect(() => {
+        const time = setTimeout(() => {
+            setLoading(false);
+        }, 3000);
+        return () => clearTimeout(time)
+    }, []);
     return (
         <section className="  w-full h-[100vh]">
-        {loading? <SplashScreen/> : null}
+            {loading ? <SplashScreen /> : null}
             <Navbar />
             <main className="overflow-hidden   h-[100vh] flex   ">
                 <Sidebar setActivePage={setActivePage} />
@@ -52,6 +53,11 @@ const [loading ,setLoading]= useState(true);
                             <Account />
                         )
                         }
+                          {
+                            activePage === "Voucher" &&
+                            <Voucher />
+                        }
+                        
                     </section>
                 </section>
             </main>
