@@ -1,175 +1,148 @@
-import { useState } from "react";
-import { FaRegBuilding } from "react-icons/fa";
-
 import {
-    LayoutDashboard,
-    PlusSquare,
-    PencilLine,
-    Receipt,
-    BookOpen,
-    FileBarChart,
-    Settings,
-    LogOut,
-    ChevronDown,
-    ChevronRight,
-} from "lucide-react";
+    FaTachometerAlt,
+    FaPlusCircle,
+    FaEdit,
+    FaReceipt,
+    FaBook,
+    FaUniversity,
+    FaChartBar,
+    FaBuilding,
+    FaCog,
+    FaSignOutAlt,
+} from "react-icons/fa";
 
 function Sidebar({ setActivePage }) {
 
-    const [openCreate, setOpenCreate] = useState(false);
-    const [openAlter, setOpenAlter] = useState(false);
+    const BtnStyle =
+        "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm font-medium";
+
+    const IconStyle = "text-orange-400/80 text-[13px]";
 
     return (
-        <aside className="w-[20vw]  h-[100vh] bg-[#101828] border-r border-white/10 hidden sm:flex flex-col justify-between p-5 ">
+        <section className="w-[20vw] h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-r border-slate-800/60 flex flex-col px-3 py-4 overflow-hidden">
 
+            {/* Dashboard */}
+            <button
+                className="w-full flex items-center gap-3 px-4 py-2.5 bg-orange-500 hover:bg-orange-400 text-white rounded-lg font-semibold text-sm transition-all duration-200 shadow-lg shadow-orange-500/20 flex-shrink-0"
+                onClick={() => setActivePage("Dashboard")}
+            >
+                <FaTachometerAlt />
+                Dashboard
+            </button>
 
-            <div>
+            {/* Navigation */}
+            <div className="flex-1 mt-4 space-y-4 overflow-hidden">
 
-                <nav className="flex flex-col gap-2">
+                {/* Masters */}
+                <div>
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-orange-400 mb-1 px-2">
+                        Masters
+                    </p>
 
-
-                    <button className="sidebar-btn bg-orange-500 text-white"
-                        onClick={() => setActivePage("Dashboard")}
-                    >
-                        <LayoutDashboard size={20} />
-                        Dashboard
-                    </button>
-                    <div>
-
+                    <div className="space-y-0.5">
                         <button
-                            onClick={() => setOpenCreate(!openCreate)}
-                            className="sidebar-btn justify-between"
+                            className={BtnStyle}
+                            onClick={() => setActivePage("Create")}
                         >
-                            <div className="flex items-center gap-3">
-                                <PlusSquare size={20} />
-                                Create
-                            </div>
-
-                            {
-                                openCreate
-                                    ? <ChevronDown size={18} />
-                                    : <ChevronRight size={18} />
-                            }
+                            <FaPlusCircle className={IconStyle} />
+                            Create
                         </button>
 
-                        {
-                            openCreate && (
-                                <div className="ml-8 mt-2 flex flex-col gap-2">
-
-                                    <button className="submenu-btn">
-                                        Voucher
-                                    </button>
-
-                                    <button className="submenu-btn">
-                                        Ledger
-                                    </button>
-
-                                    <button className="submenu-btn">
-                                        Unit
-                                    </button>
-
-                                    <button className="submenu-btn">
-                                        Group
-                                    </button>
-
-                                </div>
-                            )
-                        }
-
-                    </div>
-
-
-                    <div>
-
                         <button
-                            onClick={() => setOpenAlter(!openAlter)}
-                            className="sidebar-btn justify-between"
+                            className={BtnStyle}
+                            onClick={() => setActivePage("Alter")}
                         >
-                            <div className="flex items-center gap-3">
-                                <PencilLine size={20} />
-                                Alter
-                            </div>
+                            <FaEdit className={IconStyle} />
+                            Alter
+                        </button>
+                    </div>
+                </div>
 
-                            {
-                                openAlter
-                                    ? <ChevronDown size={18} />
-                                    : <ChevronRight size={18} />
-                            }
+                {/* Transactions */}
+                <div>
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-orange-400 mb-1 px-2">
+                        Transactions
+                    </p>
+
+                    <div className="space-y-0.5">
+                        <button
+                            className={BtnStyle}
+                            onClick={() => setActivePage("Voucher")}
+                        >
+                            <FaReceipt className={IconStyle} />
+                            Vouchers
                         </button>
 
-                        {
-                            openAlter && (
-                                <div className="ml-8 mt-2 flex flex-col gap-2">
+                        <button
+                            className={BtnStyle}
+                            onClick={() => setActivePage("Daybook")}
+                        >
+                            <FaBook className={IconStyle} />
+                            Day Book
+                        </button>
 
-                                    <button className="submenu-btn">
-                                        Voucher
-                                    </button>
-
-                                    <button className="submenu-btn">
-                                        Ledger
-                                    </button>
-
-                                    <button className="submenu-btn">
-                                        Unit
-                                    </button>
-
-                                    <button className="submenu-btn">
-                                        Group
-                                    </button>
-
-                                </div>
-                            )
-                        }
-
+                        <button
+                            className={BtnStyle}
+                            onClick={() => setActivePage("BanKing")}
+                        >
+                            <FaUniversity className={IconStyle} />
+                            Banking
+                        </button>
                     </div>
+                </div>
 
-
-                    <button className="sidebar-btn"
-                        onClick={() => setActivePage("Voucher")}
-                    >
-                        <Receipt size={20} />
-                        Voucher
-                    </button>
-
-
-                    <button className="sidebar-btn"
-                        onClick={() => setActivePage("Daybook")}
-                    >
-                        <BookOpen size={20} />
-                        Day Book
-                    </button>
-
-
-                    <button className="sidebar-btn">
-                        <FileBarChart size={20} />
+                {/* Reports */}
+                <div>
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-orange-400 mb-1 px-2">
                         Reports
-                    </button>
+                    </p>
 
+                    <div className="space-y-0.5">
+                        <button
+                            className={BtnStyle}
+                            onClick={() => setActivePage("Reports")}
+                        >
+                            <FaChartBar className={IconStyle} />
+                            Reports
+                        </button>
+                    </div>
+                </div>
 
-                    <button className="sidebar-btn"
-                        onClick={() => setActivePage("company")}
-                    >
-                        <FaRegBuilding size={20} />
-                        Company
-                    </button>
-
-
-                    <button className="sidebar-btn">
-                        <Settings size={20} />
+                {/* Settings */}
+                <div>
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-orange-400 mb-1 px-2">
                         Settings
-                    </button>
+                    </p>
 
-                </nav>
+                    <div className="space-y-0.5">
+                        <button
+                            className={BtnStyle}
+                            onClick={() => setActivePage("company")}
+                        >
+                            <FaBuilding className={IconStyle} />
+                            Company
+                        </button>
 
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all duration-300"
-                   onClick={() => setActivePage("Account")}
-                >
-                    <LogOut size={20}/>
-                    Logout
-                </button>
+                        <button
+                            className={BtnStyle}
+                            onClick={() => setActivePage("setting")}
+                        >
+                            <FaCog className={IconStyle} />
+                            Settings
+                        </button>
+
+                        <button
+                            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-300 hover:bg-red-500/15 hover:text-red-200 transition-all duration-200 text-sm font-medium"
+                            onClick={() => setActivePage("Account")}
+                        >
+                            <FaSignOutAlt />
+                            Log Out
+                        </button>
+                    </div>
+                </div>
+
             </div>
-
-        </aside>
+        </section>
     );
 }
 

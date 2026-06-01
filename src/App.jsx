@@ -53,11 +53,11 @@ function App() {
                             <Account />
                         )
                         }
-                          {
+                        {
                             activePage === "Voucher" &&
                             <Voucher />
                         }
-                        
+
                     </section>
                 </section>
             </main>
