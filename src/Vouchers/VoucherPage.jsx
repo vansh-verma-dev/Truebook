@@ -2,6 +2,7 @@ import { style } from "framer-motion/m";
 import { useState } from "react";
 import Contra from "./Contra";
 import Recipt from "./Recipt";
+import PaymentPage from "./Payment";
 
 function Voucher() {
    const [vchPage, setVchPage] = useState("Recipt");
@@ -29,6 +30,10 @@ function Voucher() {
                             vchPage === "Recipt" &&
                             <Recipt />
                         }
+                          {
+                            vchPage === "Paymnet" &&
+                            <PaymentPage />
+                        }
          </main>
 
          {/* ----------Voucher Switch Btns----------- */}
@@ -37,13 +42,16 @@ function Voucher() {
              onClick={() => setVchPage("Contra")}
             >Contra </button>
 
-            <button className={btnStyle}>Paymnet </button>
+            <button className={btnStyle}
+              onClick={() => setVchPage("Paymnet")}
+            >Paymnet </button>
 
             <button className={btnStyle}
               onClick={() => setVchPage("Recipt")}
             >Recipt </button>
             <button className={btnStyle}>Journal </button>
             <button className={btnStyle}>sales </button>
+          
             <button className={btnStyle}>Purchase </button>
             <button className={btnStyle}>Other Vouchers </button>
          </div>

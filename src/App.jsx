@@ -8,6 +8,7 @@ import CreateCompany from "./Pages/CompanyCreate";
 import Account from "./UserAccount/userpage";
 import SplashScreen from "./Pages/SplashScreen";
 import Voucher from "./Vouchers/VoucherPage";
+import CreateHome from "./Pages/CreatePage/Createhome";
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -57,7 +58,10 @@ function App() {
                             activePage === "Voucher" &&
                             <Voucher />
                         }
-
+ {
+                            activePage === "CreateHome" &&
+                            <CreateHome />
+                        }
                     </section>
                 </section>
             </main>

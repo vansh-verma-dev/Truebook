@@ -42,7 +42,7 @@ function Sidebar({ setActivePage }) {
                     <div className="space-y-0.5">
                         <button
                             className={BtnStyle}
-                            onClick={() => setActivePage("Create")}
+                            onClick={() => setActivePage("CreateHome")}
                         >
                             <FaPlusCircle className={IconStyle} />
                             Create
