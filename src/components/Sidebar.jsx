@@ -10,17 +10,32 @@ import {
     FaCog,
     FaSignOutAlt,
 } from "react-icons/fa";
+import toast from "react-hot-toast";
 
+import { Toaster } from "react-hot-toast";
+
+function App() {
+  return (
+    <>
+      <Toaster position="top-right" />
+      {/* App */}
+    </>
+  );
+}
 function Sidebar({ setActivePage }) {
 
+    const HandleAlert = () => {
+       toast.success("Feature coming soon!");
+    };
     const BtnStyle =
         "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm font-medium";
 
     const IconStyle = "text-orange-400/80 text-[13px]";
 
     return (
-        <section className="w-[20vw] h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-r border-slate-800/60 flex flex-col px-3 py-4 overflow-hidden">
 
+        <section className="w-[20vw] h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-r border-slate-800/60 flex flex-col px-3 py-4 overflow-hidden">
+            <Toaster position="top-right" />
             {/* Dashboard */}
             <button
                 className="w-full flex items-center gap-3 px-4 py-2.5 bg-orange-500 hover:bg-orange-400 text-white rounded-lg font-semibold text-sm transition-all duration-200 shadow-lg shadow-orange-500/20 flex-shrink-0"
@@ -83,7 +98,8 @@ function Sidebar({ setActivePage }) {
 
                         <button
                             className={BtnStyle}
-                            onClick={() => setActivePage("BanKing")}
+                            // onClick={() => setActivePage("BanKing")}
+                            onClick={HandleAlert}
                         >
                             <FaUniversity className={IconStyle} />
                             Banking
@@ -100,7 +116,8 @@ function Sidebar({ setActivePage }) {
                     <div className="space-y-0.5">
                         <button
                             className={BtnStyle}
-                            onClick={() => setActivePage("Reports")}
+                            // onClick={() => setActivePage("Reports")}
+                             onClick={HandleAlert}
                         >
                             <FaChartBar className={IconStyle} />
                             Reports
@@ -125,7 +142,8 @@ function Sidebar({ setActivePage }) {
 
                         <button
                             className={BtnStyle}
-                            onClick={() => setActivePage("setting")}
+                            // onClick={() => setActivePage("setting")}
+                             onClick={HandleAlert}
                         >
                             <FaCog className={IconStyle} />
                             Settings

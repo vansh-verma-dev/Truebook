@@ -21,6 +21,10 @@ function App() {
         }, 3000);
         return () => clearTimeout(time)
     }, []);
+
+ const HandleAlert = () => {
+    alert(" This feature is under development and will be available soon.");
+};
     return (
         <section className="  w-full h-[100vh]">
             {loading ? <SplashScreen /> : null}
