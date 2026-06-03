@@ -9,6 +9,7 @@ import Account from "./UserAccount/userpage";
 import SplashScreen from "./Pages/SplashScreen";
 import Voucher from "./Vouchers/VoucherPage";
 import CreateHome from "./Pages/CreatePage/Createhome";
+import AlterPage from "./Pages/AlterPage/AlterHome";
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -58,9 +59,13 @@ function App() {
                             activePage === "Voucher" &&
                             <Voucher />
                         }
- {
+                        {
                             activePage === "CreateHome" &&
                             <CreateHome />
+                        }
+                          {
+                            activePage === "Alter" &&
+                            <AlterPage/>
                         }
                     </section>
                 </section>
