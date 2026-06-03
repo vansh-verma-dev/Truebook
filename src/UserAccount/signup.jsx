@@ -6,8 +6,10 @@ function SignupPage({ setMode }) {
         <section className="flex h-[90vh] w-[80vw] bg-white">
 
 
-            <div className="left w-[45%] bg-orange-500">
-
+            <div className="left w-[45%]  bg-white">
+    <img src="https://i.pinimg.com/736x/bb/a4/56/bba4565d95318bf408435ac5232cdc50.jpg" alt=""
+                    className=" h-full object-cover rounded-xl"
+                />
             </div>
             <div className="right w-[55%] bg-gradient-to-br from-white to-orange-50 flex items-center justify-center px-6 py-3">
 

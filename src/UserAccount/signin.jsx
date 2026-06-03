@@ -5,8 +5,10 @@ function SigninPage({ setMode }) {
     return (
         <section className="flex w-[80vw]  h-[90vh] overflow-hidden  bg-white">
 
-            <div className="left w-[45%] bg-orange-500">
-
+            <div className="left w-[45%]  bg-white p-1">
+                <img src="https://i.pinimg.com/736x/bb/a4/56/bba4565d95318bf408435ac5232cdc50.jpg" alt=""
+                    className=" h-full object-cover rounded-xl"
+                />
             </div>
 
             <div className="right w-[55%] bg-gradient-to-br from-white to-orange-50 flex items-center justify-center p-2">
