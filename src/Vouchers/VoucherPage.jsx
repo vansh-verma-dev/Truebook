@@ -9,19 +9,11 @@ function Voucher() {
    const btnStyle = "text-blue-800 border-2 px-5 py-1 rounded-lg"
    return (
       <section className="bg-white w-[80vw]  h-[90vh]">
-         {/* -------navbar------- */}
-         <nav
-            className="flex items-center justify-between px-4 p-2 bg-[#101828]  text-white ">
-            <h1>{vchPage} Voucher</h1>
-            <button className="bg-green-600 hover:bg-green-500 shadow-lg px-5 py-2 rounded-lg">Save</button>
-         </nav>
-
          {/* -------------------------------------------------
                         -----Main Page------
             --------------------------------------- */}
 
-         <main className="h-[71vh]   ">
-           
+         <main className="h-[80vh]   ">
                         {
                             vchPage === "Contra" &&
                             <Contra />
