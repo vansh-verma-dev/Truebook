@@ -1,10 +1,11 @@
 import { useState } from "react";
 import Contra from "./Contra";
 import Recipt from "./Recipt";
-import PaymentPage from "./Payment";
+ 
+import Payment from "./Payment";
 
 function Voucher() {
-    const [vchPage, setVchPage] = useState("Recipt");
+    const [vchPage, setVchPage] = useState("Contra");
 
     const btnStyle = `
     px-4
@@ -45,7 +46,7 @@ function Voucher() {
 
                 {vchPage === "Recipt" && <Recipt />}
 
-                {vchPage === "Paymnet" && <PaymentPage />}
+                {vchPage === "Paymnet" && <Payment/>}
             </main>
 
             {/* Voucher Navigation */}
