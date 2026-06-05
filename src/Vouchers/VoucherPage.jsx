@@ -6,6 +6,7 @@ import Payment from "./Payment";
 import Journal from "./Journal";
 import Sales from "./Sales";
 import Purchase from "./Purchase";
+import Company from "../Pages/company";
 
 function Voucher() {
    const [vchPage, setVchPage] = useState("Contra");
@@ -56,6 +57,9 @@ function Voucher() {
             {vchPage === "Sales" && <Sales />}
 
             {vchPage === "Purchase" && <Purchase />}
+
+            {vchPage === "Company" && <Company />}
+
          </main>
 
          {/* Voucher Navigation */}
@@ -106,6 +110,16 @@ function Voucher() {
                Other Vouchers
             </button>
 
+            <button className={btnStyle}>
+               Date
+            </button>
+
+            <button className={btnStyle}
+               className={vchPage === "Company" ? activeBtn : btnStyle}
+               onClick={() => setVchPage("Company")}
+            >
+               Company
+            </button>
          </div>
 
       </section>

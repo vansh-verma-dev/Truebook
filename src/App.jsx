@@ -10,6 +10,7 @@ import SplashScreen from "./Pages/SplashScreen";
 import Voucher from "./Vouchers/VoucherPage";
 import CreateHome from "./Pages/CreatePage/Createhome";
 import AlterPage from "./Pages/AlterPage/AlterHome";
+import Settings from "./Pages/setting/setting";
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -22,9 +23,7 @@ function App() {
         return () => clearTimeout(time)
     }, []);
 
- const HandleAlert = () => {
-    alert(" This feature is under development and will be available soon.");
-};
+
     return (
         <section className="  w-full h-[100vh]">
             {loading ? <SplashScreen /> : null}
@@ -70,6 +69,10 @@ function App() {
                           {
                             activePage === "Alter" &&
                             <AlterPage/>
+                        }
+                        {
+                            activePage === "setting" &&
+                            <Settings/>
                         }
                     </section>
                 </section>

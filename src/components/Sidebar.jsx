@@ -15,17 +15,17 @@ import toast from "react-hot-toast";
 import { Toaster } from "react-hot-toast";
 
 function App() {
-  return (
-    <>
-      <Toaster position="top-right" />
-      {/* App */}
-    </>
-  );
+    return (
+        <>
+            <Toaster position="top-right" />
+            {/* App */}
+        </>
+    );
 }
 function Sidebar({ setActivePage }) {
 
     const HandleAlert = () => {
-       toast.success("Feature coming soon!");
+        toast.success("Feature coming soon!");
     };
     const BtnStyle =
         "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm font-medium";
@@ -117,7 +117,7 @@ function Sidebar({ setActivePage }) {
                         <button
                             className={BtnStyle}
                             // onClick={() => setActivePage("Reports")}
-                             onClick={HandleAlert}
+                            onClick={HandleAlert}
                         >
                             <FaChartBar className={IconStyle} />
                             Reports
@@ -142,8 +142,7 @@ function Sidebar({ setActivePage }) {
 
                         <button
                             className={BtnStyle}
-                            // onClick={() => setActivePage("setting")}
-                             onClick={HandleAlert}
+                            onClick={() => setActivePage("setting")}
                         >
                             <FaCog className={IconStyle} />
                             Settings
