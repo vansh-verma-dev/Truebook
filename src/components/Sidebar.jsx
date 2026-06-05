@@ -98,8 +98,7 @@ function Sidebar({ setActivePage }) {
 
                         <button
                             className={BtnStyle}
-                            // onClick={() => setActivePage("BanKing")}
-                            onClick={HandleAlert}
+                            onClick={() => setActivePage("BanKing")} 
                         >
                             <FaUniversity className={IconStyle} />
                             Banking

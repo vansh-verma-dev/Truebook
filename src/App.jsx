@@ -11,6 +11,7 @@ import Voucher from "./Vouchers/VoucherPage";
 import CreateHome from "./Pages/CreatePage/Createhome";
 import AlterPage from "./Pages/AlterPage/AlterHome";
 import Settings from "./Pages/setting/setting";
+import Banking from "./Pages/Banking/banking";
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -73,6 +74,10 @@ function App() {
                         {
                             activePage === "setting" &&
                             <Settings/>
+                        }
+                          {
+                            activePage === "BanKing" &&
+                            <Banking />
                         }
                     </section>
                 </section>
