@@ -3,6 +3,7 @@ import Contra from "./Contra";
 import Recipt from "./Recipt";
  
 import Payment from "./Payment";
+import Journal from "./Journal";
 
 function Voucher() {
     const [vchPage, setVchPage] = useState("Contra");
@@ -47,6 +48,8 @@ function Voucher() {
                 {vchPage === "Recipt" && <Recipt />}
 
                 {vchPage === "Paymnet" && <Payment/>}
+
+                  {vchPage === "Journal" && <Journal/>}
             </main>
 
             {/* Voucher Navigation */}
@@ -73,7 +76,10 @@ function Voucher() {
                     Receipt
                 </button>
 
-                <button className={btnStyle}>
+                <button
+                className={vchPage === "Journal" ? activeBtn : btnStyle}
+                    onClick={() => setVchPage("Journal")}
+                >
                     Journal
                 </button>
 
