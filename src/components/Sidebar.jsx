@@ -115,8 +115,7 @@ function Sidebar({ setActivePage }) {
                     <div className="space-y-0.5">
                         <button
                             className={BtnStyle}
-                            // onClick={() => setActivePage("Reports")}
-                            onClick={HandleAlert}
+                            onClick={() => setActivePage("Reports")}
                         >
                             <FaChartBar className={IconStyle} />
                             Reports

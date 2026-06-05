@@ -12,6 +12,7 @@ import CreateHome from "./Pages/CreatePage/Createhome";
 import AlterPage from "./Pages/AlterPage/AlterHome";
 import Settings from "./Pages/setting/setting";
 import Banking from "./Pages/Banking/banking";
+import Reports from "./Pages/Reports/Reports";
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -79,6 +80,11 @@ function App() {
                             activePage === "BanKing" &&
                             <Banking />
                         }
+                          {
+                            activePage === "Reports" &&
+                            <Reports />
+                        }
+                        
                     </section>
                 </section>
             </main>
