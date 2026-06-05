@@ -1,14 +1,16 @@
 import { useState } from "react";
 import Contra from "./Contra";
 import Recipt from "./Recipt";
- 
+
 import Payment from "./Payment";
 import Journal from "./Journal";
+import Sales from "./Sales";
+import Purchase from "./Purchase";
 
 function Voucher() {
-    const [vchPage, setVchPage] = useState("Contra");
+   const [vchPage, setVchPage] = useState("Contra");
 
-    const btnStyle = `
+   const btnStyle = `
     px-4
     h-8
     text-sm
@@ -25,7 +27,7 @@ function Voucher() {
     duration-150
     `;
 
-    const activeBtn = `
+   const activeBtn = `
     px-4
     h-8
     text-sm
@@ -38,67 +40,76 @@ function Voucher() {
     shadow-sm
     `;
 
-    return (
-        <section className="bg-white w-[80vw] h-[90vh]">
+   return (
+      <section className="bg-white w-[80vw] h-[90vh]">
 
-            {/* Main Voucher Page */}
-            <main className="h-[82vh]">
-                {vchPage === "Contra" && <Contra />}
+         {/* Main Voucher Page */}
+         <main className="h-[82vh]">
+            {vchPage === "Contra" && <Contra />}
 
-                {vchPage === "Recipt" && <Recipt />}
+            {vchPage === "Recipt" && <Recipt />}
 
-                {vchPage === "Paymnet" && <Payment/>}
+            {vchPage === "Paymnet" && <Payment />}
 
-                  {vchPage === "Journal" && <Journal/>}
-            </main>
+            {vchPage === "Journal" && <Journal />}
 
-            {/* Voucher Navigation */}
-            <div className="flex items-center gap-2 px-3 py-2 border-t border-slate-200 bg-slate-50">
+            {vchPage === "Sales" && <Sales />}
 
-                <button
-                    className={vchPage === "Contra" ? activeBtn : btnStyle}
-                    onClick={() => setVchPage("Contra")}
-                >
-                    Contra
-                </button>
+            {vchPage === "Purchase" && <Purchase />}
+         </main>
 
-                <button
-                    className={vchPage === "Paymnet" ? activeBtn : btnStyle}
-                    onClick={() => setVchPage("Paymnet")}
-                >
-                    Payment
-                </button>
+         {/* Voucher Navigation */}
+         <div className="flex items-center gap-2 px-3 py-2 border-t border-slate-200 bg-slate-50">
 
-                <button
-                    className={vchPage === "Recipt" ? activeBtn : btnStyle}
-                    onClick={() => setVchPage("Recipt")}
-                >
-                    Receipt
-                </button>
+            <button
+               className={vchPage === "Contra" ? activeBtn : btnStyle}
+               onClick={() => setVchPage("Contra")}
+            >
+               Contra
+            </button>
 
-                <button
-                className={vchPage === "Journal" ? activeBtn : btnStyle}
-                    onClick={() => setVchPage("Journal")}
-                >
-                    Journal
-                </button>
+            <button
+               className={vchPage === "Paymnet" ? activeBtn : btnStyle}
+               onClick={() => setVchPage("Paymnet")}
+            >
+               Payment
+            </button>
 
-                <button className={btnStyle}>
-                    Sales
-                </button>
+            <button
+               className={vchPage === "Recipt" ? activeBtn : btnStyle}
+               onClick={() => setVchPage("Recipt")}
+            >
+               Receipt
+            </button>
 
-                <button className={btnStyle}>
-                    Purchase
-                </button>
+            <button
+               className={vchPage === "Journal" ? activeBtn : btnStyle}
+               onClick={() => setVchPage("Journal")}
+            >
+               Journal
+            </button>
 
-                <button className={btnStyle}>
-                    Other Vouchers
-                </button>
+            <button
+               className={vchPage === "Sales" ? activeBtn : btnStyle}
+               onClick={() => setVchPage("Sales")}
+            >
+               Sales
+            </button>
 
-            </div>
+            <button className={vchPage === "Purchase" ? activeBtn : btnStyle}
+               onClick={() => setVchPage("Purchase")}
+            >
+               Purchase
+            </button>
 
-        </section>
-    );
+            <button className={btnStyle}>
+               Other Vouchers
+            </button>
+
+         </div>
+
+      </section>
+   );
 }
 
 export default Voucher;
