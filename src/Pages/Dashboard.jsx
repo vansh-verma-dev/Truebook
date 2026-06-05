@@ -83,7 +83,178 @@ function Dashboard() {
                 </div>
 
             </div>
-          
+          {/* Dashboard Content */}
+<div className="grid grid-cols-2 gap-4 px-4 mt-4">
+
+    {/* Recent Activities */}
+    <div className="bg-[#101828] border border-white/10 rounded-2xl p-4">
+        <h2 className="text-white text-lg font-semibold mb-4">
+            Recent Activities
+        </h2>
+
+        <div className="space-y-3">
+
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                <span className="text-slate-300">
+                    Sales Voucher #001
+                </span>
+
+                <span className="text-green-400 font-medium">
+                    ₹12,500
+                </span>
+            </div>
+
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                <span className="text-slate-300">
+                    Payment Voucher #002
+                </span>
+
+                <span className="text-red-400 font-medium">
+                    ₹8,000
+                </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+                <span className="text-slate-300">
+                    Receipt Voucher #003
+                </span>
+
+                <span className="text-green-400 font-medium">
+                    ₹15,000
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+    {/* Quick Actions */}
+    <div className="bg-[#101828] border border-white/10 rounded-2xl p-4">
+
+        <h2 className="text-white text-lg font-semibold mb-4">
+            Quick Actions
+        </h2>
+
+        <div className="grid grid-cols-3 gap-3">
+
+            <button className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl py-2 text-sm">
+                Sales
+            </button>
+
+            <button className="bg-[#1d2939] hover:bg-[#2d3f55] text-white rounded-xl py-2 text-sm">
+                Purchase
+            </button>
+
+            <button className="bg-[#1d2939] hover:bg-[#2d3f55] text-white rounded-xl py-2 text-sm">
+                Receipt
+            </button>
+
+            <button className="bg-[#1d2939] hover:bg-[#2d3f55] text-white rounded-xl py-2 text-sm">
+                Payment
+            </button>
+
+            <button className="bg-[#1d2939] hover:bg-[#2d3f55] text-white rounded-xl py-2 text-sm">
+                Contra
+            </button>
+
+            <button className="bg-[#1d2939] hover:bg-[#2d3f55] text-white rounded-xl py-2 text-sm">
+                Journal
+            </button>
+
+        </div>
+    </div>
+
+</div>
+
+{/* Bottom Section */}
+<div className="grid grid-cols-2 gap-4 px-4 mt-4">
+
+    {/* Due Alerts */}
+    <div className="bg-[#101828] border border-white/10 rounded-2xl p-4">
+
+        <h2 className="text-white text-lg font-semibold mb-4">
+            Due Alerts
+        </h2>
+
+        <div className="space-y-3">
+
+            <div className="flex justify-between">
+                <span className="text-slate-300">
+                    GST Return Due
+                </span>
+
+                <span className="text-yellow-400">
+                    2 Days Left
+                </span>
+            </div>
+
+            <div className="flex justify-between">
+                <span className="text-slate-300">
+                    Supplier Payment
+                </span>
+
+                <span className="text-red-400">
+                    ₹25,000
+                </span>
+            </div>
+
+            <div className="flex justify-between">
+                <span className="text-slate-300">
+                    Customer Receivable
+                </span>
+
+                <span className="text-green-400">
+                    ₹45,000
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+    {/* Top Customers */}
+    <div className="bg-[#101828] border border-white/10 rounded-2xl p-4">
+
+        <h2 className="text-white text-lg font-semibold mb-4">
+            Top Customers
+        </h2>
+
+        <div className="space-y-3">
+
+            <div className="flex justify-between">
+                <span className="text-slate-300">
+                    Vansh Enterprises
+                </span>
+
+                <span className="text-green-400">
+                    ₹85,000
+                </span>
+            </div>
+
+            <div className="flex justify-between">
+                <span className="text-slate-300">
+                    Sharma Traders
+                </span>
+
+                <span className="text-green-400">
+                    ₹62,000
+                </span>
+            </div>
+
+            <div className="flex justify-between">
+                <span className="text-slate-300">
+                    ABC Agency
+                </span>
+
+                <span className="text-green-400">
+                    ₹48,000
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
         </section>
     );
 }
