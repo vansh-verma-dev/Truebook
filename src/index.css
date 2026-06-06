@@ -71,3 +71,18 @@
  .vuch-box::-webkit-scrollbar {
    display: none;
  }
+
+ /* .main-page {
+   position: relative;
+ }
+
+ .notifivation_section {
+   width: 20vw;
+   height: 90vh;
+   position: absolute;
+   right: 0;
+   top: 0;
+   background: #ffffff;
+   z-index: 1000;
+   transition: all ease 0.3s;
+ } */

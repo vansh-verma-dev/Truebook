@@ -13,8 +13,10 @@ import AlterPage from "./Pages/AlterPage/AlterHome";
 import Settings from "./Pages/setting/setting";
 import Banking from "./Pages/Banking/banking";
 import Reports from "./Pages/Reports/Reports";
+import RightPanel from "./components/rightPanel";
 
 function App() {
+    const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [activePage, setActivePage] = useState("Dashboard");
 
@@ -27,11 +29,21 @@ function App() {
 
 
     return (
+       
         <section className="  w-full h-[100vh]">
             {loading ? <SplashScreen /> : null}
-            <Navbar />
-            <main className="overflow-hidden   h-[100vh] flex   ">
+            {/* ----Navbar--- */}
+         <Navbar setOpen={setOpen} />
+          {/*  ---Main-pages--- */}
+
+            <main className="overflow-hidden   h-[100vh] flex relative main-page ">
+                {/* ---sidebar--- */}
                 <Sidebar setActivePage={setActivePage} />
+
+                {/* --Rightpanel Notifivcation bar--- */}
+               <RightPanel open={open} setOpen={setOpen} />
+
+               {/* ----Mainpages--- */}
                 <section className="mainpage">
                     <section className="mainpage">
                         {
@@ -68,23 +80,23 @@ function App() {
                             activePage === "CreateHome" &&
                             <CreateHome />
                         }
-                          {
+                        {
                             activePage === "Alter" &&
-                            <AlterPage/>
+                            <AlterPage />
                         }
                         {
                             activePage === "setting" &&
-                            <Settings/>
+                            <Settings />
                         }
-                          {
+                        {
                             activePage === "BanKing" &&
                             <Banking />
                         }
-                          {
+                        {
                             activePage === "Reports" &&
                             <Reports />
                         }
-                        
+
                     </section>
                 </section>
             </main>

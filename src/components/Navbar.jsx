@@ -1,7 +1,9 @@
 import { section } from "framer-motion/m";
+import { useState } from "react";
 import { FaBell } from "react-icons/fa";
 
-function Navbar() {
+function Navbar({open, setOpen}) {
+   
     return (
         <section className="dashboard-page w-full   bg-[#0F172A]">
 
@@ -25,7 +27,9 @@ function Navbar() {
                 <div className="profile-section flex items-center gap-5">
 
 
-                    <button className="relative">
+                    <button className="relative"
+                       onClick={() => setOpen(true)}
+                    >
                         <FaBell className="text-white text-xl cursor-pointer hover:text-orange-400 transition-all duration-300" />
 
                         <span className="absolute -top-1 -right-1 w-[8px] h-[8px] bg-orange-500 rounded-full"></span>
