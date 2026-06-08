@@ -6,6 +6,7 @@ import {
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { PiNotePencilBold } from "react-icons/pi";
 function AccountingMastery() {
+   
     const CardsStyle =
         "group flex items-center gap-4 w-[220px] px-4 py-3 bg-white border border-orange-100 rounded-xl shadow-sm hover:shadow-lg hover:border-orange-300 hover:-translate-y-1 transition-all duration-200 cursor-pointer";
 
@@ -34,7 +35,9 @@ function AccountingMastery() {
                     </div>
                 </div>
 
-                <div className={CardsStyle}>
+                <div className={CardsStyle}
+                    
+                >
                     <div className={IconBox}>
                         <FaBook className={IconStyle} />
                     </div>
