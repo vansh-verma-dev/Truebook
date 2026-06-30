@@ -4,7 +4,7 @@ function Searchbar({ setActivePage }) {
         <>
             <div className="  w-[80vw] py-2 px-2 flex gap-4 mt-2">
                 {/* ----Search_box--- */}
-                <div className="box bg-[#1d2939] flex items-center gap-3 text-white px-3 rounded-lg overflow-hidden" >
+                <div className="box bg-[#1d2939] flex  items-center gap-3 text-white px-3 rounded-lg overflow-hidden" >
 
                     <FaSearch className="font-light" />
 
