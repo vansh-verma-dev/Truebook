@@ -30,18 +30,18 @@ function Sidebar({ setActivePage }) {
     const BtnStyle =
         "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm font-medium";
 
-    const IconStyle = "text-orange-400/80 text-[13px]";
+    const IconStyle = "text-[20px]  ";
 
     return (
 
-        <section className="w-[20vw] h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-r border-slate-800/60 flex flex-col px-3 py-4 overflow-hidden">
+        <section className="w-[240px] h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-r border-slate-800/60 flex flex-col px-3 py-4 overflow-hidden">
             <Toaster position="top-right" />
             {/* Dashboard */}
             <button
-                className="w-full flex items-center gap-3 px-4 py-2.5 bg-orange-500 hover:bg-orange-400 text-white rounded-lg font-semibold text-sm transition-all duration-200 shadow-lg shadow-orange-500/20 flex-shrink-0"
+                className="w-full flex items-center gap-3 px-4 py-2.5 bg-[#0d6efd] hover:bg-[#0250c5] text-white rounded-lg font-semibold text-sm transition-all duration-200 shadow-lg shadow-[#0d6efd]/20 flex-shrink-0"
                 onClick={() => setActivePage("Dashboard")}
             >
-                <FaTachometerAlt />
+                <FaTachometerAlt  className="text-2xl"/>
                 Dashboard
             </button>
 

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 function SigninPage({ setMode }) {
     return (
-        <section className="flex w-[80vw]  h-[90vh] overflow-hidden  bg-white">
+        <section className="flex w-[83vw]  h-[90vh] overflow-hidden  bg-white">
 
             <div className="left w-[45%]  bg-white p-1">
                 <img src="https://i.pinimg.com/736x/bb/a4/56/bba4565d95318bf408435ac5232cdc50.jpg" alt=""

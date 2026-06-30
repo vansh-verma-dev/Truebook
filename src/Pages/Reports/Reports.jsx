@@ -15,7 +15,7 @@ function Reports() {
         "bg-white border border-slate-200 rounded-xl p-4 hover:border-orange-300 hover:shadow-md transition-all cursor-pointer";
 
     return (
-        <section className="bg-slate-50 w-[80vw] h-[90vh] p-5 overflow-y-auto">
+        <section className="bg-slate-50 w-[83vw] h-[90vh] p-5 overflow-y-auto">
 
             {/* Header */}
             <div className="bg-gradient-to-r from-orange-500 to-orange-400 rounded-2xl p-6 text-white">

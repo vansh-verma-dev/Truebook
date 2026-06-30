@@ -42,7 +42,7 @@ function Voucher() {
     `;
 
    return (
-      <section className="bg-white w-[80vw] h-[90vh]">
+      <section className="bg-white w-[83vw] h-[90vh]">
 
          {/* Main Voucher Page */}
          <main className="h-[82vh]">

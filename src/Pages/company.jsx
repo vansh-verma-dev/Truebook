@@ -14,7 +14,7 @@ const avatarPalette = [
 
 function Company({ setActivePage }) {
   return (
-    <section className="w-full h-[95vh] relative m-0 p-0 bg-[#f8f9fb]">
+    <section className="w-[83vw] h-[95vh] relative m-0 p-0 bg-[#f8f9fb]">
 
       {/* --Search-Input--- */}
       <Searchbar setActivePage={setActivePage} />

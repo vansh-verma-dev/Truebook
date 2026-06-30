@@ -23,9 +23,9 @@ function Dashboard() {
         scrollRef.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
         setTimeout(updateButtons, 350);
     };
-
+//bg-[#1d2939]
     return (
-        <section className=" bg-[#1d2939] w-[80vw] h-[95vh]">
+        <section className="bg-[#fff]  w-[83vw] h-[95vh]">
             <div className="relative w-full">
 
                 {/* Left Button */}

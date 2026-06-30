@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 function SignupPage({ setMode }) {
     return (
-        <section className="flex h-[90vh] w-[80vw] bg-white">
+        <section className="flex h-[90vh] w-[83vw] bg-white">
 
 
             <div className="left w-[45%]  bg-white">

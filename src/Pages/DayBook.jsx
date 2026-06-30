@@ -36,7 +36,8 @@ function Daybook() {
     };
     return (
         <>
-            <DaybookNavbar />
+        <div className="w-[83vw]">
+ <DaybookNavbar />
             <main className=" bg-white  w-full h-[95vh]">
 
                 <div className="flex items-center justify-between px-5 py-3 bg-white border-b shadow-sm">
@@ -119,6 +120,8 @@ function Daybook() {
 
                 </div>
             </main>
+        </div>
+           
         </>
     )
 }

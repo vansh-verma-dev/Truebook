@@ -16,7 +16,7 @@ function AlterHome() {
         "text-xl text-orange-600";
 
     return (
-        <main className="bg-gradient-to-br from-orange-50 via-white to-orange-100 h-[90vh] w-[80vw] p-5 overflow-y-auto">
+        <main className="bg-gradient-to-br from-orange-50 via-white to-orange-100 h-[90vh] w-[83vw] p-5 overflow-y-auto">
 
             {/* Header */}
             <div className="mb-6">
