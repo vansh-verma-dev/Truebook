@@ -7,7 +7,8 @@ import {
     FaPalette,
     FaChevronRight
 } from "react-icons/fa";
-
+ 
+ 
 function Settings() {
 
     const rowStyle =
@@ -17,14 +18,17 @@ function Settings() {
         <section className="bg-slate-50 h-[90vh] w-[83vw] p-5 overflow-y-auto">
 
             {/* Header */}
-            <div className="bg-gradient-to-r from-orange-500 to-orange-400 rounded-2xl p-6 text-white shadow-lg">
+         <div className="relative overflow-hidden bg-gradient-to-br from-[#0d6efd] to-[#0250c5] rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
 
-                <h1 className="text-3xl font-bold">
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+                <div className="absolute -bottom-12 -right-4 w-28 h-28 bg-white/10 rounded-full"></div>
+
+                <h1 className="relative text-3xl font-bold tracking-tight">
                     Settings
                 </h1>
 
-                <p className="text-orange-100 mt-2">
-                    Configure your company, accounting preferences and system settings.
+                <p className="relative text-blue-100 mt-2 text-sm md:text-base">
+                   Configure your company, accounting preferences and system settings.
                 </p>
 
             </div>

@@ -27,21 +27,23 @@ function Sidebar({ setActivePage }) {
     const HandleAlert = () => {
         toast.success("Feature coming soon!");
     };
-    const BtnStyle =
-        "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white hover:translate-x-1 transition-all duration-200 text-sm font-medium";
 
-    const IconStyle = "text-[20px]  ";
+    const BtnStyle =
+        "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 text-sm font-medium";
+
+    const IconStyle = "text-[16px]";
 
     return (
 
-        <section className="w-[240px] h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-r border-slate-800/60 flex flex-col px-3 py-4 overflow-hidden">
+        <section className="w-[240px] h-screen bg-white border-r border-slate-200 flex flex-col px-3 py-4 overflow-hidden shadow-sm">
             <Toaster position="top-right" />
+
             {/* Dashboard */}
             <button
                 className="w-full flex items-center gap-3 px-4 py-2.5 bg-[#0d6efd] hover:bg-[#0250c5] text-white rounded-lg font-semibold text-sm transition-all duration-200 shadow-lg shadow-[#0d6efd]/20 flex-shrink-0"
                 onClick={() => setActivePage("Dashboard")}
             >
-                <FaTachometerAlt  className="text-2xl"/>
+                <FaTachometerAlt className="text-2xl"/>
                 Dashboard
             </button>
 
@@ -50,7 +52,7 @@ function Sidebar({ setActivePage }) {
 
                 {/* Masters */}
                 <div>
-                    <p className="text-[10px] uppercase tracking-widest font-bold text-orange-400 mb-1 px-2">
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-blue-600 mb-1 px-2">
                         Masters
                     </p>
 
@@ -75,7 +77,7 @@ function Sidebar({ setActivePage }) {
 
                 {/* Transactions */}
                 <div>
-                    <p className="text-[10px] uppercase tracking-widest font-bold text-orange-400 mb-1 px-2">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-blue-600 mb-1 px-2">
                         Transactions
                     </p>
 
@@ -108,7 +110,7 @@ function Sidebar({ setActivePage }) {
 
                 {/* Reports */}
                 <div>
-                    <p className="text-[10px] uppercase tracking-widest font-bold text-orange-400 mb-1 px-2">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-blue-600 mb-1 px-2">
                         Reports
                     </p>
 
@@ -125,7 +127,7 @@ function Sidebar({ setActivePage }) {
 
                 {/* Settings */}
                 <div>
-                    <p className="text-[10px] uppercase tracking-widest font-bold text-orange-400 mb-1 px-2">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-blue-600 mb-1 px-2">
                         Settings
                     </p>
 
@@ -147,10 +149,10 @@ function Sidebar({ setActivePage }) {
                         </button>
 
                         <button
-                            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-300 hover:bg-red-500/15 hover:text-red-200 transition-all duration-200 text-sm font-medium"
+                            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm font-medium"
                             onClick={() => setActivePage("Account")}
                         >
-                            <FaSignOutAlt />
+                            <FaSignOutAlt className={IconStyle} />
                             Log Out
                         </button>
                     </div>
