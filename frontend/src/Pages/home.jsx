@@ -5,7 +5,6 @@ import Dashboard from "../Pages/Dashboard";
 import Company from "../Pages/company";
 import Daybook from "../Pages/DayBook";
 import CreateCompany from "../Pages/CompanyCreate";
-import Account from "../UserAccount/userpage";
 import SplashScreen from "../Pages/SplashScreen";
 import Voucher from "../Vouchers/VoucherPage";
 import CreateHome from "../Pages/CreatePage/Createhome";
@@ -67,10 +66,6 @@ function HomePage() {
                         {
                             activePage === "Daybook" &&
                             <Daybook />
-                        }
-                        {activePage === "Account" && (
-                            <Account />
-                        )
                         }
                         {
                             activePage === "Voucher" &&

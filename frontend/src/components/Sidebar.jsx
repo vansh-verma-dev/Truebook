@@ -11,7 +11,7 @@ import {
     FaSignOutAlt,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
-
+ 
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -150,7 +150,7 @@ function Sidebar({ setActivePage }) {
 
                         <button
                             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm font-medium"
-                            onClick={() => setActivePage("Account")}
+                             
                         >
                             <FaSignOutAlt className={IconStyle} />
                             Log Out

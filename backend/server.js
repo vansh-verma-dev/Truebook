@@ -1,22 +1,21 @@
-require("dotenv").config();
+import "dotenv/config";
+import app from "./src/app.js";
+import dns from "node:dns";
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+import connectDB from "./src/config/config.js";
 
-const app = require("./src/app");
-const connectDB = require("./src/config/db");
-const { PORT } = require("./src/config/config")
+const PORT = process.env.PORT || 3000;
 
-
-const startServer = async () => {
+const StartServer = async () => {
     try {
         await connectDB();
-
         app.listen(PORT, () => {
-            console.log(`Server running at http://localhost:${PORT}`);
+            console.log(`Server is running on port ${PORT}`);
         });
-
     } catch (error) {
-        console.log("Server startup failed:", error.message);
-        process.exit(1);
-    }
-};
+        cosole.error(`Error: ${error.message}`);
 
-startServer();
+    }
+}
+
+StartServer();
