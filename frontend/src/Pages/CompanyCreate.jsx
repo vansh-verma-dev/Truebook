@@ -1,7 +1,96 @@
+import { useState } from "react";
 import { MdSaveAs } from "react-icons/md";
+ 
+const sections = [
+    {
+        title: "Basic Details",
+        fields: [
+            { name: "name", label: "Company Name *", placeholder: "Enter company name", required: true },
+            { name: "mailingName", label: "Mailing Name", placeholder: "Enter mailing name" },
+            { name: "ownerName", label: "Owner Name", placeholder: "Enter owner name" },
+            {
+                name: "companyType",
+                label: "Company Type",
+                defaultValue: "Private Limited",
+                options: [
+                    { value: "Private Limited", label: "Private Limited" },
+                    { value: "LLP", label: "LLP" },
+                    { value: "Partnership", label: "Partnership" },
+                    { value: "Sole Proprietorship", label: "Sole Proprietorship" },
+                ],
+            },
+            { name: "industry", label: "Industry", placeholder: "Business type" },
+            { name: "establishedDate", label: "Established Date", type: "date" },
+        ],
+    },
+    {
+        title: "Contact Details",
+        fields: [
+            { name: "email", label: "Email", type: "email", placeholder: "Enter email" },
+            { name: "phone", label: "Phone", placeholder: "Enter phone number", maxLength: 10 },
+            { name: "alternatePhone", label: "Alternate Phone", placeholder: "Optional", maxLength: 10 },
+            { name: "website", label: "Website", placeholder: "https://..." },
+        ],
+    },
+    {
+        title: "Address Details",
+        fields: [
+            { name: "address", label: "Address", type: "textarea", placeholder: "Enter full address", full: true },
+            { name: "city", label: "City" },
+            { name: "state", label: "State" },
+            { name: "country", label: "Country", defaultValue: "India" },
+            { name: "pincode", label: "Pincode", maxLength: 6 },
+        ],
+    },
+    {
+        title: "Tax Details",
+        fields: [
+            { name: "gstin", label: "GST Number", maxLength: 15 },
+            { name: "pan", label: "PAN Number", maxLength: 10 },
+            { name: "financialYearStart", label: "Financial Year Start *", type: "date", required: true },
+            {
+                name: "currency",
+                label: "Currency",
+                defaultValue: "INR",
+                options: [
+                    { value: "INR", label: "INR ₹" },
+                    { value: "USD", label: "USD $" },
+                    { value: "EUR", label: "EUR €" },
+                ],
+            },
+        ],
+    },
+];
 
+ 
+const initialData = Object.fromEntries(
+    sections
+        .flatMap((section) => section.fields)
+        .map((field) => [field.name, field.defaultValue || ""])
+);
+
+const inputClass =
+    "w-full p-3 rounded-lg bg-slate-50 text-[#1d2939] outline-none border border-slate-200 focus:border-[#0d6efd] focus:ring-2 focus:ring-blue-100 transition-all duration-200 placeholder:text-slate-400";
 
 function CreateCompany({ setActivePage }) {
+    const [formData, setFormData] = useState(initialData);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        
+        const cleanData = Object.fromEntries(
+            Object.entries(formData).filter(([key, value]) => value.trim() !== "")
+        );
+
+        console.log("Company data:", cleanData);
+ 
+    };
+
     return (
         <section className="h-[95vh]">
             {/* --Navbar-- */}
@@ -19,134 +108,77 @@ function CreateCompany({ setActivePage }) {
                 </button>
             </nav>
 
-            <CompanyForm />
+            <section className="w-full h-[90vh] overflow-x-auto bg-[#f8f9fb] p-4 sm:p-6">
+                <form
+                    id="company-form"
+                    onSubmit={handleSubmit}
+                    className="pb-14 max-w-5xl mx-auto flex flex-col gap-6"
+                >
+                    {sections.map((section) => (
+                        <div
+                            key={section.title}
+                            className="bg-white border border-slate-100 rounded-2xl p-5 shadow-[0_1px_3px_rgba(16,24,40,0.06)]"
+                        >
+                            <h2 className="text-[#0d6efd] text-sm font-semibold uppercase tracking-wide mb-4">
+                                {section.title}
+                            </h2>
 
-        </section>
-    )
-}
-export default CreateCompany;
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {section.fields.map((field) => (
+                                    <div
+                                        key={field.name}
+                                        className={`flex flex-col gap-1 ${field.full ? "sm:col-span-2" : ""}`}
+                                    >
+                                        <label className="text-slate-600 text-sm font-medium">
+                                            {field.label}
+                                        </label>
 
-export const CompanyForm = () => {
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Company Saved");
-    };
-    return (
-        <section className="w-full h-[90vh] overflow-x-auto bg-[#f8f9fb] p-4 sm:p-6 companyForm">
-
-            <form id="company-form" onSubmit={handleSubmit} className="pb-14 max-w-5xl mx-auto flex flex-col gap-6">
-
-                {/* ================= BASIC DETAILS ================= */}
-                <SectionCard title="Basic Details">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                        <Input label="Company Name" placeholder="Enter company name" />
-                        <Input label="Mailing Name" placeholder="Enter mailing name" />
-
-                        <Input label="Owner Name" placeholder="Enter owner name" />
-
-                        <Select
-                            label="Company Type"
-                            options={[
-                                "Private Limited",
-                                "LLP",
-                                "Partnership",
-                                "Sole Proprietorship",
-                            ]}
-                        />
-
-                        <Input label="Industry" placeholder="Business type" />
-                        <Input type="date" label="Established Date" />
-
-                    </div>
-                </SectionCard>
-
-                {/* ================= CONTACT DETAILS ================= */}
-                <SectionCard title="Contact Details">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                        <Input label="Email" type="email" placeholder="Enter email" />
-                        <Input label="Phone" placeholder="Enter phone number" />
-                        <Input label="Alternate Phone" placeholder="Optional" />
-                        <Input label="Website" placeholder="https://..." />
-
-                    </div>
-                </SectionCard>
-
-                {/* ================= ADDRESS ================= */}
-                <SectionCard title="Address Details">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                        <div className="sm:col-span-2 flex flex-col gap-1">
-                            <label className="text-slate-600 text-sm font-medium">Address</label>
-                            <textarea
-                                className="w-full mt-1 p-3 rounded-lg bg-slate-50 text-[#1d2939] outline-none border border-slate-200 focus:border-[#0d6efd] focus:ring-2 focus:ring-blue-100 transition-all duration-200 placeholder:text-slate-400"
-                                rows="3"
-                                placeholder="Enter full address"
-                            />
+                                        {/* dropdown */}
+                                        {field.options ? (
+                                            <select
+                                                name={field.name}
+                                                value={formData[field.name]}
+                                                onChange={handleChange}
+                                                className={inputClass}
+                                            >
+                                                {field.options.map((opt) => (
+                                                    <option key={opt.value} value={opt.value}>
+                                                        {opt.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ) : field.type === "textarea" ? (
+                                            /* textarea */
+                                            <textarea
+                                                name={field.name}
+                                                value={formData[field.name]}
+                                                onChange={handleChange}
+                                                placeholder={field.placeholder}
+                                                rows="3"
+                                                className={inputClass}
+                                            />
+                                        ) : (
+                                            /* normal input */
+                                            <input
+                                                name={field.name}
+                                                type={field.type || "text"}
+                                                value={formData[field.name]}
+                                                onChange={handleChange}
+                                                placeholder={field.placeholder}
+                                                maxLength={field.maxLength}
+                                                required={field.required}
+                                                className={inputClass}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-
-                        <Input label="City" />
-                        <Input label="State" />
-                        <Input label="Country" />
-                        <Input label="Pincode" />
-
-                    </div>
-                </SectionCard>
-
-                {/* ================= TAX DETAILS ================= */}
-                <SectionCard title="Tax Details">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                        <Input label="GST Number" />
-                        <Input label="PAN Number" />
-                        <Input label="Financial Year Start" type="date" />
-
-                        <Select
-                            label="Currency"
-                            options={["INR ₹", "USD $", "EUR €"]}
-                        />
-
-                    </div>
-                </SectionCard>
-
-            </form>
+                    ))}
+                </form>
+            </section>
         </section>
-    )
-}
-
-function SectionCard({ title, children }) {
-    return (
-        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
-            <h2 className="text-[#0d6efd] text-sm font-semibold uppercase tracking-wide mb-4">
-                {title}
-            </h2>
-            {children}
-        </div>
     );
 }
 
-function Input({ label, ...props }) {
-    return (
-        <div className="flex flex-col gap-1">
-            <label className="text-slate-600 text-sm font-medium">{label}</label>
-            <input
-                {...props}
-                className="p-3 rounded-lg bg-slate-50 text-[#1d2939] outline-none border border-slate-200 focus:border-[#0d6efd] focus:ring-2 focus:ring-blue-100 transition-all duration-200 placeholder:text-slate-400"
-            />
-        </div>
-    );
-}
-
-function Select({ label, options }) {
-    return (
-        <div className="flex flex-col gap-1">
-            <label className="text-slate-600 text-sm font-medium">{label}</label>
-            <select className="p-3 rounded-lg bg-slate-50 text-[#1d2939] outline-none border border-slate-200 focus:border-[#0d6efd] focus:ring-2 focus:ring-blue-100 transition-all duration-200">
-                {options.map((opt, i) => (
-                    <option key={i}>{opt}</option>
-                ))}
-            </select>
-        </div>
-    );
-}
+export default CreateCompany;

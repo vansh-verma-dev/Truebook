@@ -1,6 +1,7 @@
 import express from "express";
 import authRouter from "./routes/authRoutes.js";
 import companyRouter from "./routes/company.Router.js";
+import ledgerRouter from "./routes/ledgerRouter.js";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api", companyRouter);
+app.use("/api/companies/:companyId/ledgers", ledgerRouter);
 
 
 export default app;

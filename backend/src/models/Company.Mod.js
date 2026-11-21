@@ -230,7 +230,7 @@ const companySchema = new mongoose.Schema(
   }
 );
 
-// Prevent same owner from creating duplicate company names
+ 
 companySchema.index(
   { owner: 1, name: 1 },
   { unique: true }
