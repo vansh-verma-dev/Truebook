@@ -1,128 +1,345 @@
-import { FaPlus, FaSearch } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaSearch } from "react-icons/fa";
 import DaybookNavbar from "../components/DaybookNavbar";
-import invoices from "../Data/Invoice"
-import { div } from "framer-motion/m";
-// bg-[#1d2939]
+
+const voucherTypes = {
+    sales: { label: "Sales", prefix: "SV", style: "bg-green-100 text-green-700" },
+    purchase: { label: "Purchase", prefix: "PV", style: "bg-red-100 text-red-700" },
+    payment: { label: "Payment", prefix: "PY", style: "bg-orange-100 text-orange-700" },
+    receipt: { label: "Receipt", prefix: "RC", style: "bg-blue-100 text-blue-700" },
+    contra: { label: "Contra", prefix: "CV", style: "bg-purple-100 text-purple-700" },
+    salesReturn: { label: "Sales Return", prefix: "SR", style: "bg-yellow-100 text-yellow-700" },
+    purchaseReturn: { label: "Purchase Return", prefix: "PR", style: "bg-pink-100 text-pink-700" },
+    journal: { label: "Journal", prefix: "JV", style: "bg-gray-200 text-gray-700" },
+};
+
+const showSide = {
+    payment: "Dr",
+    receipt: "Cr",
+    sales: "Dr",
+    purchase: "Cr",
+    salesReturn: "Cr",
+    purchaseReturn: "Dr",
+    contra: "Cr",
+    journal: "Dr",
+};
+
+const rowGrid = "grid grid-cols-[110px_1fr_140px_110px_150px_150px] items-center gap-3";
+
+const getSelectedCompany = () => {
+    try {
+        return JSON.parse(localStorage.getItem("selectedCompany") || "null");
+    } catch {
+        return null;
+    }
+};
+
+const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "2-digit",
+        timeZone: "UTC",
+    });
+
+const money = (amount) =>
+    Number(amount || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+
+const getVoucherNo = (voucher) => {
+    const prefix = voucherTypes[voucher.voucherType]?.prefix || "VC";
+    return `${prefix}-${String(voucher.voucherNumber).padStart(5, "0")}`;
+};
+
+const getRowData = (voucher) => {
+    const side = showSide[voucher.voucherType] || "Dr";
+
+    let entries = voucher.entries.filter((entry) => entry.type === side);
+    if (entries.length === 0) entries = voucher.entries.slice(0, 1);
+
+    if (entries.length === 0) {
+        return { side: "Dr", particulars: "-", amount: voucher.totalAmount };
+    }
+
+    return {
+        side: entries[0].type,
+        particulars: entries.map((entry) => entry.ledger?.name || "-").join(", "),
+        amount: entries.reduce((sum, entry) => sum + entry.amount, 0),
+    };
+};
+
 function Daybook() {
-    const getVchTypeStyle = (type) => {
-        switch (type) {
-            case "Sales":
-                return "bg-green-100 text-green-700";
+    const navigate = useNavigate();
+    const companyId = getSelectedCompany()?._id;
 
-            case "Purchase":
-                return "bg-red-100 text-red-700";
+    const [vouchers, setVouchers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [search, setSearch] = useState("");
+    const [typeFilter, setTypeFilter] = useState("");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
 
-            case "Payment":
-                return "bg-orange-100 text-orange-700";
+    const fetchVouchers = async () => {
+        if (!companyId) {
+            setLoading(false);
+            return;
+        }
 
-            case "Receipt":
-                return "bg-blue-100 text-blue-700";
+        try {
+            setLoading(true);
+            setError("");
 
-            case "Contra":
-                return "bg-purple-100 text-purple-700";
+            const token = localStorage.getItem("token");
 
-            case "Sales Return":
-                return "bg-yellow-100 text-yellow-700";
+            const params = new URLSearchParams();
+            if (typeFilter) params.append("type", typeFilter);
+            if (fromDate) params.append("from", fromDate);
+            if (toDate) params.append("to", toDate);
 
-            case "Purchase Return":
-                return "bg-pink-100 text-pink-700";
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/companies/${companyId}/vouchers?${params.toString()}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
 
-            case "Journal":
-                return "bg-gray-200 text-gray-700";
+            const data = await response.json();
 
-            default:
-                return "bg-gray-100 text-gray-600";
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to load day book");
+            }
+
+            setVouchers(data.data || []);
+        } catch (err) {
+            setError(err.message || "Unable to load day book");
+        } finally {
+            setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchVouchers();
+    }, [companyId, typeFilter, fromDate, toDate]);
+
+    const searchValue = search.toLowerCase().trim();
+
+    const rows = vouchers
+        .map((voucher) => ({ voucher, ...getRowData(voucher) }))
+        .filter(({ voucher }) => {
+            if (!searchValue) return true;
+
+            const text = [
+                getVoucherNo(voucher),
+                voucherTypes[voucher.voucherType]?.label,
+                voucher.narration,
+                voucher.refNo,
+                ...voucher.entries.map((entry) => entry.ledger?.name),
+            ]
+                .join(" ")
+                .toLowerCase();
+
+            return text.includes(searchValue);
+        });
+
+    const totalDebit = rows
+        .filter((row) => row.side === "Dr")
+        .reduce((sum, row) => sum + row.amount, 0);
+
+    const totalCredit = rows
+        .filter((row) => row.side === "Cr")
+        .reduce((sum, row) => sum + row.amount, 0);
+
+    const hasFilters = search || typeFilter || fromDate || toDate;
+
+    const clearFilters = () => {
+        setSearch("");
+        setTypeFilter("");
+        setFromDate("");
+        setToDate("");
+    };
+
     return (
-        <>
         <div className="w-[83vw]">
- <DaybookNavbar />
-            <main className=" bg-white  w-full h-[95vh]">
+            <DaybookNavbar />
 
+            <main className="bg-white w-full h-[95vh]">
                 <div className="flex items-center justify-between px-5 py-3 bg-white border-b shadow-sm">
-
-                    {/* Search Box */}
                     <div className="flex items-center gap-2 border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-400">
                         <FaSearch className="text-gray-500" />
                         <input
                             type="text"
-                            placeholder="Search your data..."
-                            className="outline-none bg-transparent text-sm w-64"
+                            placeholder="Search ledger, voucher no, narration..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="outline-none bg-transparent text-sm w-72"
                         />
                     </div>
 
-                    {/* Right Controls */}
                     <div className="flex items-center gap-3">
-
-                        {/* Voucher Filter */}
-                        <select className="border rounded-lg px-3 py-2 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option>All Voucher Types</option>
-                            <option>Sales</option>
-                            <option>Payment</option>
-                            <option>Receipt</option>
-                            <option>Purchase</option>
-                            <option>Contra</option>
-                            <option>Sales Return</option>
-                            <option>Purchase Return</option>
-                            <option>Journal</option>
-                            <option>Other</option>
+                        <select
+                            value={typeFilter}
+                            onChange={(e) => setTypeFilter(e.target.value)}
+                            className="border rounded-lg px-3 py-2 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        >
+                            <option value="">All Voucher Types</option>
+                            {Object.entries(voucherTypes).map(([key, info]) => (
+                                <option key={key} value={key}>
+                                    {info.label}
+                                </option>
+                            ))}
                         </select>
 
-                        {/* Date Range */}
                         <div className="flex items-center gap-2 border rounded-lg px-3 py-2 bg-gray-50 shadow-sm date_input">
-                            <input type="date" className="text-sm outline-none bg-transparent"
-
+                            <input
+                                type="date"
+                                value={fromDate}
+                                onChange={(e) => setFromDate(e.target.value)}
+                                className="text-sm outline-none bg-transparent"
                             />
                             <span className="text-gray-500 text-sm">to</span>
-                            <input type="date" className="text-sm outline-none bg-transparent" />
+                            <input
+                                type="date"
+                                value={toDate}
+                                onChange={(e) => setToDate(e.target.value)}
+                                className="text-sm outline-none bg-transparent"
+                            />
                         </div>
 
-                    </div>
-                </div>
-
-
-                <div className="h-[60vh] overflow-y-auto border rounded-lg bg-white">
-
-                    {/* Header */}
-                    <div className="grid grid-cols-7 bg-gray-100 text-gray-700 font-semibold text-sm px-3 py-2 sticky top-0 border-b">
-                        <p>Date</p>
-                        <p>Vch Type</p>
-                        <p>Vch No</p>
-                        <p>Particulars</p>
-                        <p className="text-right">Debit</p>
-                        <p className="text-right">Credit</p>
-                        <p className="text-right">Balance</p>
-                    </div>
-
-                    {/* Rows */}
-                    {invoices.map((invoice, index) => {
-                        return (
-                            <div
-                                key={index}
-                                className="grid grid-cols-7 items-center px-3 py-2 text-sm text-gray-600 border-b hover:bg-gray-50 transition"
+                        {hasFilters && (
+                            <button
+                                onClick={clearFilters}
+                                className="text-sm font-medium text-blue-600 hover:text-blue-700"
                             >
-                                <p>{invoice.date}</p>
-                                <p
-                                    className={`px-2 py-1 rounded-full text-xs font-medium w-fit ${getVchTypeStyle(invoice.vchType)}`}
-                                >
-                                    {invoice.vchType}
-                                </p>
-                                <p>{invoice.vchNo}</p>
-                                <p className="truncate">{invoice.particulars}</p>
-
-                                <p className="text-right">{invoice.debit}</p>
-                                <p className="text-right">{invoice.credit}</p>
-                                <p className="text-right font-medium">{invoice.balance}</p>
-                            </div>
-                        );
-                    })}
-
+                                Clear
+                            </button>
+                        )}
+                    </div>
                 </div>
+
+                {!companyId && (
+                    <div className="flex flex-col items-center justify-center py-24 text-center">
+                        <p className="text-lg font-semibold text-gray-800">No company selected</p>
+                        <p className="mt-1 text-sm text-gray-500">
+                            Select a company to see its day book.
+                        </p>
+                        <button
+                            onClick={() => navigate("/company")}
+                            className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700"
+                        >
+                            Select Company
+                        </button>
+                    </div>
+                )}
+
+                {companyId && (
+                    <div className="m-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                        <div className="h-[56vh] overflow-y-auto">
+                            <div
+                                className={`${rowGrid} sticky top-0 z-10 border-b bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500`}
+                            >
+                                <p>Date</p>
+                                <p>Particulars</p>
+                                <p>Vch Type</p>
+                                <p>Vch No</p>
+                                <p className="text-right">Debit Amount</p>
+                                <p className="text-right">Credit Amount</p>
+                            </div>
+
+                            {loading && (
+                                <div className="flex flex-col items-center justify-center py-20">
+                                    <div className="w-9 h-9 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+                                    <p className="mt-3 text-sm text-gray-500">Loading day book...</p>
+                                </div>
+                            )}
+
+                            {!loading && error && (
+                                <div className="py-16 text-center">
+                                    <p className="text-red-600 font-medium">{error}</p>
+                                    <button
+                                        onClick={fetchVouchers}
+                                        className="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
+                                    >
+                                        Retry
+                                    </button>
+                                </div>
+                            )}
+
+                            {!loading && !error && rows.length === 0 && (
+                                <p className="py-20 text-center text-gray-500">
+                                    {vouchers.length === 0
+                                        ? "No vouchers yet for this company."
+                                        : "No vouchers match your search."}
+                                </p>
+                            )}
+
+                            {!loading &&
+                                !error &&
+                                rows.map(({ voucher, side, particulars, amount }) => {
+                                    const info = voucherTypes[voucher.voucherType];
+
+                                    return (
+                                        <div
+                                            key={voucher._id}
+                                            className={`${rowGrid} border-b border-l-4 border-l-transparent px-4 py-3 text-sm text-gray-600 transition hover:border-l-amber-400 hover:bg-amber-50/60`}
+                                        >
+                                            <p className="whitespace-nowrap">{formatDate(voucher.date)}</p>
+
+                                            <div className="min-w-0">
+                                                <p className="truncate font-semibold text-gray-800">
+                                                    {particulars}
+                                                </p>
+                                                {voucher.narration && (
+                                                    <p className="truncate text-xs italic text-gray-400">
+                                                        {voucher.narration}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <span
+                                                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                                                        info?.style || "bg-gray-100 text-gray-600"
+                                                    }`}
+                                                >
+                                                    {info?.label || voucher.voucherType}
+                                                </span>
+                                            </div>
+
+                                            <p className="font-medium text-gray-700">
+                                                {getVoucherNo(voucher)}
+                                            </p>
+
+                                            <p className="text-right font-semibold tabular-nums text-gray-800">
+                                                {side === "Dr" ? money(amount) : ""}
+                                            </p>
+
+                                            <p className="text-right font-semibold tabular-nums text-gray-800">
+                                                {side === "Cr" ? money(amount) : ""}
+                                            </p>
+                                        </div>
+                                    );
+                                })}
+                        </div>
+
+                        <div className={`${rowGrid} border-t-2 bg-slate-50 px-4 py-3 text-sm`}>
+                            <p className="col-span-4 text-gray-500">
+                                Vouchers:{" "}
+                                <span className="font-semibold text-gray-800">{rows.length}</span>
+                            </p>
+                            <p className="text-right font-bold tabular-nums text-gray-800">
+                                {money(totalDebit)}
+                            </p>
+                            <p className="text-right font-bold tabular-nums text-gray-800">
+                                {money(totalCredit)}
+                            </p>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
-           
-        </>
-    )
+    );
 }
+
 export default Daybook;

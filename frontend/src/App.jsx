@@ -16,8 +16,8 @@ function ProtectedRoute({ children }) {
 
 function App() {
     return (
-    
-<>
+
+        <>
             <Toaster position="top-right" />
 
             <Routes>
@@ -33,8 +33,8 @@ function App() {
                     }
                 />
             </Routes>
-</>
-        
+        </>
+
     );
 }
 
