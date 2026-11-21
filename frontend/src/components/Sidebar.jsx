@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
     FaTachometerAlt,
     FaPlusCircle,
@@ -12,6 +11,8 @@ import {
     FaSignOutAlt,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Toaster } from "react-hot-toast";
 
@@ -25,6 +26,20 @@ function App() {
 }
 function Sidebar({ setActivePage }) {
 
+    const navigate = useNavigate();
+    const [showLogout, setShowLogout] = useState(false);
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setShowLogout(false);
+
+        toast.success("Logged out successfully!");
+
+        navigate("/login", { replace: true });
+    };
+
     const HandleAlert = () => {
         toast.success("Feature coming soon!");
     };
@@ -33,7 +48,6 @@ function Sidebar({ setActivePage }) {
         "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 text-sm font-medium";
 
     const IconStyle = "text-[16px]";
-    const [showLogout, setShowLogout] = useState(false);
 
     return (
 
@@ -195,10 +209,7 @@ function Sidebar({ setActivePage }) {
                             </button>
 
                             <button
-                                onClick={() => {
-                                    setShowLogout(false);
-                                     
-                                }}
+                                onClick={handleLogout}
                                 className="flex-1 py-2.5 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition shadow-md shadow-red-500/20"
                             >
                                 Yes, Logout

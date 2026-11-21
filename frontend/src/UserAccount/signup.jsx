@@ -1,10 +1,28 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaUserTie } from "react-icons/fa";
-import { LuChartNoAxesCombined, LuCalculator, LuBuilding2, LuShieldCheck } from "react-icons/lu";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  FaUser,
+  FaEnvelope,
+  FaPhone,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaUserTie,
+} from "react-icons/fa";
+import {
+  LuChartNoAxesCombined,
+  LuCalculator,
+  LuBuilding2,
+  LuShieldCheck,
+} from "react-icons/lu";
+import toast from "react-hot-toast";
 
 const SignUp = () => {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     role: "",
     fullName: "",
@@ -17,11 +35,119 @@ const SignUp = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(form);
-    // yaha apni API call lagao
-    // axios.post("/api/auth/register", form)
+
+    if (loading) return;
+
+    setLoading(true);
+
+    try {
+      //  Create account
+      const registerResponse = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        }
+      );
+
+      const registerData = await registerResponse.json();
+
+      if (!registerResponse.ok) {
+        toast.error(registerData.message || "Account creation failed.");
+        return;
+      }
+
+      console.log("Registration successful:", registerData);
+
+      //  Check if register API already returned a token
+      let token =
+        registerData.token ||
+        registerData.accessToken ||
+        registerData.data?.token ||
+        registerData.data?.accessToken;
+
+      let user =
+        registerData.user ||
+        registerData.data?.user ||
+        null;
+
+      //  If register didn't return token, login automatically
+      if (!token) {
+        const loginResponse = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/auth/login`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: form.email,
+              password: form.password,
+            }),
+          }
+        );
+
+        const loginData = await loginResponse.json();
+
+        if (!loginResponse.ok) {
+          toast.success("Account created successfully!");
+          toast.error("Please login to continue.");
+          navigate("/login");
+          return;
+        }
+
+        token =
+          loginData.token ||
+          loginData.accessToken ||
+          loginData.data?.token ||
+          loginData.data?.accessToken;
+
+        user =
+          loginData.user ||
+          loginData.data?.user ||
+          user;
+
+        console.log("Automatic login successful:", loginData);
+      }
+
+      //   Save session
+      if (!token) {
+        toast.success("Account created successfully!");
+        toast.error("Authentication token was not received.");
+        navigate("/login");
+        return;
+      }
+
+      localStorage.setItem("token", token);
+
+      if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+      }
+
+      //   Reset form
+      setForm({
+        role: "",
+        fullName: "",
+        email: "",
+        phone: "",
+        password: "",
+      });
+
+      //  Go to home page
+      toast.success("Welcome to TrueBook! Your account is ready.");
+      navigate("/", { replace: true });
+
+    } catch (error) {
+      console.error("Signup Error:", error);
+      toast.error("Unable to connect to the server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -93,6 +219,7 @@ const SignUp = () => {
                 onChange={handleChange}
                 required
                 className="w-full bg-transparent outline-none text-base font-medium text-gray-800"
+                disabled={loading}
               >
                 <option value="">Select Role</option>
                 <option value="student">Student</option>
@@ -114,6 +241,7 @@ const SignUp = () => {
                 onChange={handleChange}
                 required
                 className="w-full outline-none text-sm"
+                disabled={loading}
               />
             </div>
 
@@ -128,6 +256,7 @@ const SignUp = () => {
                 onChange={handleChange}
                 required
                 className="w-full outline-none text-sm"
+                disabled={loading}
               />
             </div>
 
@@ -143,6 +272,7 @@ const SignUp = () => {
                 onChange={handleChange}
                 required
                 className="w-full outline-none text-sm"
+                disabled={loading}
               />
             </div>
 
@@ -158,18 +288,40 @@ const SignUp = () => {
                 minLength={6}
                 required
                 className="w-full outline-none text-sm"
+                disabled={loading}
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? <FaEyeSlash className="text-gray-500" /> : <FaEye className="text-gray-500" />}
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <FaEyeSlash className="text-gray-500" />
+                ) : (
+                  <FaEye className="text-gray-500" />
+                )}
               </button>
             </div>
 
+
             <button
               type="submit"
-              className="w-full h-12 bg-green-900 hover:bg-green-800 text-white font-semibold rounded-xl"
+              disabled={loading}
+              className={`w-full h-12 flex items-center justify-center gap-2 text-white font-semibold rounded-xl transition-all duration-200 ${loading
+                ? "bg-green-700 opacity-80 cursor-not-allowed"
+                : "bg-green-900 hover:bg-green-800"
+                }`}
             >
-              Create Account →
+              {loading ? (
+                <>
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  Creating Account...
+                </>
+              ) : (
+                "Create Account →"
+              )}
             </button>
+
 
             <p className="text-center text-sm text-gray-600 mt-4">
               Already have an account?{" "}
