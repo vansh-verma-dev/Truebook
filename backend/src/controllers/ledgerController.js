@@ -1,4 +1,5 @@
 import ledger from "../models/ledger.Mod.js";
+import Voucher from "../models/voucher.Mod.js";
 import mongoose from "mongoose";
 
 const groups = ledger.schema.path("group").enumValues;
@@ -182,7 +183,7 @@ const updateLedger = async (req, res) => {
 };
 
 //delete ledger
-import Voucher from "../models/Voucher.Mod.js";
+
 
 const deleteLedger = async (req, res) => {
   try {
