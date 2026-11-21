@@ -73,7 +73,7 @@ const getLedger = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Ledger create succesfully..",
+            message: "Ledger fetched succesfully..",
             ledger: newledger
         })
     } catch (error) {
