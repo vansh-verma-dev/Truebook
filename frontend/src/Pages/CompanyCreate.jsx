@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MdSaveAs } from "react-icons/md";
- 
+import toast from "react-hot-toast";
+
 const sections = [
     {
         title: "Basic Details",
@@ -58,11 +59,23 @@ const sections = [
                     { value: "EUR", label: "EUR €" },
                 ],
             },
+            {
+    name: "financialYearEnd",
+    label: "Financial Year End *",
+    type: "date",
+    required: true,
+},
+{
+    name: "booksBeginFrom",
+    label: "Books Begin From *",
+    type: "date",
+    required: true,
+},
         ],
     },
 ];
 
- 
+
 const initialData = Object.fromEntries(
     sections
         .flatMap((section) => section.fields)
@@ -74,22 +87,73 @@ const inputClass =
 
 function CreateCompany({ setActivePage }) {
     const [formData, setFormData] = useState(initialData);
+    const [loading, setLoading] = useState(false);
+
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        
+    try {
+        setLoading(true);
+
         const cleanData = Object.fromEntries(
-            Object.entries(formData).filter(([key, value]) => value.trim() !== "")
+            Object.entries(formData).filter(
+                ([key, value]) => value.trim() !== ""
+            )
         );
 
-        console.log("Company data:", cleanData);
- 
-    };
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            toast.error("Please login first");
+            return;
+        }
+
+        const response = await fetch(
+            `${import.meta.env.VITE_API_URL}/api/Companies`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(cleanData),
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to create company");
+        }
+
+        
+        const newCompany = data.details;
+
+        // Save selected company
+        localStorage.setItem(
+            "selectedCompany",
+            JSON.stringify(newCompany)
+        );
+
+        toast.success("Company created successfully!");
+
+        // Navigate to home/dashboard
+        if (setActivePage) {
+            setActivePage("/");
+        }
+
+    } catch (error) {
+        console.error("Create company error:", error);
+        toast.error(error.message || "Something went wrong");
+    } finally {
+        setLoading(false);
+    }
+};
 
     return (
         <section className="h-[95vh]">
@@ -100,11 +164,13 @@ function CreateCompany({ setActivePage }) {
                     <p className="text-xs text-slate-400 mt-0.5">Fill in your company details to get started</p>
                 </span>
                 <button
-                    className="flex items-center gap-2 bg-[#0d6efd] hover:bg-[#0250c5] active:scale-95 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-[0_1px_2px_rgba(13,110,253,0.3)] transition-all duration-150"
+                    className="flex items-center gap-2 bg-[#0d6efd] hover:bg-[#0250c5] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-[0_1px_2px_rgba(13,110,253,0.3)] transition-all duration-150"
                     type="submit"
                     form="company-form"
+                    disabled={loading}
                 >
-                    <MdSaveAs /> Save Company
+                    <MdSaveAs />
+                    {loading ? "Saving Company..." : "Save Company"}
                 </button>
             </nav>
 

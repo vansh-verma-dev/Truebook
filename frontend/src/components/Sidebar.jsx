@@ -13,35 +13,25 @@ import {
 import toast from "react-hot-toast";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getActiveUser, removeAccount } from "../utils/accountStore";
 
-import { Toaster } from "react-hot-toast";
-
-function App() {
-    return (
-        <>
-            <Toaster position="top-right" />
-            {/* App */}
-        </>
-    );
-}
 function Sidebar({ setActivePage }) {
 
     const navigate = useNavigate();
     const [showLogout, setShowLogout] = useState(false);
 
     const handleLogout = () => {
+        removeAccount(getActiveUser().id);
+
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        localStorage.removeItem("selectedCompany");
 
         setShowLogout(false);
 
         toast.success("Logged out successfully!");
 
         navigate("/login", { replace: true });
-    };
-
-    const HandleAlert = () => {
-        toast.success("Feature coming soon!");
     };
 
     const BtnStyle =
@@ -53,7 +43,6 @@ function Sidebar({ setActivePage }) {
 
         <>
             <section className="w-[240px] h-screen bg-white border-r border-slate-200 sm:flex flex-col px-3 py-4 overflow-hidden shadow-sm hidden">
-                <Toaster position="top-right" />
 
                 {/* Dashboard */}
                 <button

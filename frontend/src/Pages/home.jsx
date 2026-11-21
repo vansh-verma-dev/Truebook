@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Dashboard from "../Pages/Dashboard";
@@ -14,88 +15,104 @@ import Banking from "../Pages/Banking/banking";
 import Reports from "../Pages/Reports/Reports";
 import RightPanel from "../components/rightPanel";
 
+const pagePaths = {
+    Dashboard: "/",
+    company: "/company",
+    CreateCompany: "/company/create",
+    Daybook: "/daybook",
+    Voucher: "/voucher",
+    voucher: "/voucher",
+    CreateHome: "/create",
+    Alter: "/alter",
+    setting: "/settings",
+    BanKing: "/banking",
+    Reports: "/reports",
+};
+
 function HomePage() {
+    const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [activePage, setActivePage] = useState("Dashboard");
+
+    const [selectedCompany, setSelectedCompany] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem("selectedCompany") || "null");
+        } catch {
+            return null;
+        }
+    });
+
+    const setActivePage = (page) => {
+        navigate(pagePaths[page] || "/");
+    };
 
     useEffect(() => {
         const time = setTimeout(() => {
             setLoading(false);
         }, 3000);
-        return () => clearTimeout(time)
+
+        return () => clearTimeout(time);
     }, []);
 
+    const handleCompanySelect = (company) => {
+        localStorage.setItem("selectedCompany", JSON.stringify(company));
+        setSelectedCompany(company);
+        setActivePage("Dashboard");
+    };
 
     return (
+        <section className="w-full h-[100vh]">
+            {loading && <SplashScreen />}
 
-        <section className="  w-full h-[100vh]">
-            {loading ? <SplashScreen /> : null}
-            {/* ----Navbar--- */}
-            <Navbar setOpen={setOpen} />
-            {/*  ---Main-pages--- */}
+            <Navbar
+                open={open}
+                setOpen={setOpen}
+                company={selectedCompany}
+            />
 
-            <main className="overflow-hidden   h-[100vh] flex relative main-page ">
-                {/* ---sidebar--- */}
+            <main className="overflow-hidden h-[calc(100vh-75px)] flex relative main-page">
                 <Sidebar setActivePage={setActivePage} />
 
-                {/* --Rightpanel Notifivcation bar--- */}
-                <RightPanel open={open} setOpen={setOpen} />
+                <RightPanel
+                    open={open}
+                    setOpen={setOpen}
+                />
 
-                {/* ----Mainpages--- */}
                 <section className="mainpage">
                     <section className="mainpage">
-                        {
-                            activePage === "Dashboard" &&
-                            <Dashboard />
-                        }
+                        <Routes>
+                            <Route path="/" element={<Dashboard />} />
 
-                        {
-                            activePage === "company" &&
-                            <Company setActivePage={setActivePage} />
-                        }
+                            <Route
+                                path="company"
+                                element={
+                                    <Company
+                                        setActivePage={setActivePage}
+                                        onSelectCompany={handleCompanySelect}
+                                    />
+                                }
+                            />
 
-                        {
-                            activePage === "voucher" &&
-                            <Voucher />
-                        }
-                        {
-                            activePage === "CreateCompany" &&
-                            <CreateCompany />
-                        }
-                        {
-                            activePage === "Daybook" &&
-                            <Daybook />
-                        }
-                        {
-                            activePage === "Voucher" &&
-                            <Voucher />
-                        }
-                        {
-                            activePage === "CreateHome" &&
-                            <CreateHome />
-                        }
-                        {
-                            activePage === "Alter" &&
-                            <AlterPage />
-                        }
-                        {
-                            activePage === "setting" &&
-                            <Settings />
-                        }
-                        {
-                            activePage === "BanKing" &&
-                            <Banking />
-                        }
-                        {
-                            activePage === "Reports" &&
-                            <Reports />
-                        }
+                            <Route
+                                path="company/create"
+                                element={<CreateCompany setActivePage={setActivePage} />}
+                            />
 
+                            <Route path="daybook" element={<Daybook />} />
+                            <Route path="voucher" element={<Voucher />} />
+                            <Route path="create" element={<CreateHome />} />
+                            <Route path="alter" element={<AlterPage />} />
+                            <Route path="settings" element={<Settings />} />
+                            <Route path="banking" element={<Banking />} />
+                            <Route path="reports" element={<Reports />} />
+
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
                     </section>
                 </section>
             </main>
         </section>
-    )
+    );
 }
+
 export default HomePage;
