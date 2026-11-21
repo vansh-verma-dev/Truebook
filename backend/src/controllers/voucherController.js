@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Voucher from "../models/Voucher.Mod.js";
+import Voucher from "../models/voucher.Mod.js";
 import Ledger from "../models/ledger.Mod.js";
 
 const voucherTypes = [
