@@ -1,4 +1,6 @@
+import mongoose from "mongoose";
 import Group from "../models/group.Mod.js";
+import Ledger from "../models/ledger.Mod.js";
 import defaultGroups from "../utils/Group.js";
 
 const natures = ["asset", "liability", "income", "expense"];
@@ -16,21 +18,41 @@ const makeKey = (name) =>
         )
         .join("");
 
+const keyOf = (group) => (group.name ? makeKey(group.name) : "");
+
+const isDefaultKey = (id) => defaultGroups.some((group) => group.key === id);
+
+const isNameTaken = async (companyId, name, excludeId) => {
+    const newKey = makeKey(name);
+
+    const inDefaults = defaultGroups.some(
+        (group) => group.key === newKey || keyOf(group) === newKey
+    );
+
+    if (inDefaults) return true;
+
+    const query = { company: companyId };
+    if (excludeId) query._id = { $ne: excludeId };
+
+    const others = await Group.find(query).select("name key").lean();
+
+    return others.some((group) => group.key === newKey || keyOf(group) === newKey);
+};
+
 const getGroups = async (req, res) => {
     try {
-        const { companyId } = req.params;
-
-        const userGroups = await Group.find({ company: companyId }).lean();
+        const userGroups = await Group.find({ company: req.company._id }).lean();
 
         const defaults = defaultGroups.map((group) => ({ ...group, isDefault: true }));
         const users = userGroups.map((group) => ({ ...group, isDefault: false }));
 
         const allGroups = [...defaults, ...users];
+
         res.status(200).json({
             success: true,
             message: "Groups fetched successfully..",
-            totalGroup : allGroups.length , 
-            groups: [...defaults, ...users],
+            totalGroup: allGroups.length,
+            groups: allGroups,
         });
     } catch (error) {
         res.status(500).json({
@@ -42,10 +64,9 @@ const getGroups = async (req, res) => {
 
 const createGroup = async (req, res) => {
     try {
-        const { companyId } = req.params;
         const { name, nature } = req.body;
 
-        if (!name || !name.trim()) {
+        if (typeof name !== "string" || !name.trim()) {
             return res.status(400).json({
                 success: false,
                 message: "Group name is required",
@@ -63,18 +84,7 @@ const createGroup = async (req, res) => {
 
         const finalNature = natures.includes(nature) ? nature : "asset";
 
-        const inDefaults = defaultGroups.some((group) => group.key === key);
-
-        if (inDefaults) {
-            return res.status(400).json({
-                success: false,
-                message: "Group already exists",
-            });
-        }
-
-        const inDatabase = await Group.findOne({ company: companyId, key });
-
-        if (inDatabase) {
+        if (await isNameTaken(req.company._id, name)) {
             return res.status(400).json({
                 success: false,
                 message: "Group already exists",
@@ -82,7 +92,7 @@ const createGroup = async (req, res) => {
         }
 
         const data = await Group.create({
-            company: companyId,
+            company: req.company._id,
             name: name.trim(),
             key,
             nature: finalNature,
@@ -101,4 +111,182 @@ const createGroup = async (req, res) => {
     }
 };
 
-export { getGroups, createGroup };
+const updateGroup = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, nature } = req.body;
+
+        if (isDefaultKey(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Default groups cannot be changed",
+            });
+        }
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid group id",
+            });
+        }
+
+        if (name === undefined && nature === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: "Nothing to update",
+            });
+        }
+
+        const group = await Group.findOne({ _id: id, company: req.company._id });
+
+        if (!group) {
+            return res.status(404).json({
+                success: false,
+                message: "Group not found",
+            });
+        }
+
+        if (name !== undefined) {
+            if (typeof name !== "string" || !name.trim() || !makeKey(name)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Group name is not valid",
+                });
+            }
+
+            if (await isNameTaken(req.company._id, name, id)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Group already exists",
+                });
+            }
+
+            group.name = name.trim();
+        }
+
+        if (nature !== undefined) {
+            if (!natures.includes(nature)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid nature",
+                });
+            }
+
+            group.nature = nature;
+        }
+
+        await group.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Group updated successfully..",
+            group: { ...group.toObject(), isDefault: false },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+const deleteGroup = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (isDefaultKey(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Default groups cannot be deleted",
+            });
+        }
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid group id",
+            });
+        }
+
+        const group = await Group.findOne({ _id: id, company: req.company._id });
+
+        if (!group) {
+            return res.status(404).json({
+                success: false,
+                message: "Group not found",
+            });
+        }
+
+        const usedInLedger = await Ledger.exists({
+            company: req.company._id,
+            group: group.key,
+        });
+
+        if (usedInLedger) {
+            return res.status(400).json({
+                success: false,
+                message: "This group has ledgers, remove them first",
+            });
+        }
+
+        await Group.deleteOne({ _id: id, company: req.company._id });
+
+        res.status(200).json({
+            success: true,
+            message: "Group deleted successfully..",
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+const getSingleGroup = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const defaultGroup = defaultGroups.find((group) => group.key === id);
+
+        if (defaultGroup) {
+            return res.status(200).json({
+                success: true,
+                message: "Group fetched successfully..",
+                group: { ...defaultGroup, isDefault: true },
+            });
+        }
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid group id",
+            });
+        }
+
+        const group = await Group.findOne({
+            _id: id,
+            company: req.company._id,
+        }).lean();
+
+        if (!group) {
+            return res.status(404).json({
+                success: false,
+                message: "Group not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Group fetched successfully..",
+            group: { ...group, isDefault: false },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+export { getGroups, getSingleGroup,  createGroup, updateGroup, deleteGroup  };

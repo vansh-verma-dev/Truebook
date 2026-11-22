@@ -15,6 +15,7 @@ import Banking from "../Pages/Banking/banking";
 import Reports from "../Pages/Reports/Reports";
 import RightPanel from "../components/rightPanel";
 import LedgerAlterPage from "./AlterPage/ledger.Alter";
+import GroupPage from "./AlterPage/groupAlter";
 
 const pagePaths = {
     Dashboard: "/",
@@ -105,6 +106,7 @@ function HomePage() {
 
                         <Route path="alter" element={<AlterPage />} />
                         <Route path="alter/ledger" element={<LedgerAlterPage />} />
+                        <Route path="/alter/group" element={<GroupPage />} />
 
                         <Route path="settings" element={<Settings />} />
                         <Route path="banking" element={<Banking />} />
