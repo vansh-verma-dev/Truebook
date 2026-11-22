@@ -14,6 +14,7 @@ import Settings from "../Pages/setting/setting";
 import Banking from "../Pages/Banking/banking";
 import Reports from "../Pages/Reports/Reports";
 import RightPanel from "../components/rightPanel";
+import LedgerAlterPage from "./AlterPage/ledger.Alter";
 
 const pagePaths = {
     Dashboard: "/",
@@ -79,36 +80,38 @@ function HomePage() {
                 />
 
                 <section className="mainpage">
-                    <section className="mainpage">
-                        <Routes>
-                            <Route path="/" element={<Dashboard />} />
+                    <Routes>
+                        <Route path="/" element={<Dashboard />} />
 
-                            <Route
-                                path="company"
-                                element={
-                                    <Company
-                                        setActivePage={setActivePage}
-                                        onSelectCompany={handleCompanySelect}
-                                    />
-                                }
-                            />
+                        <Route
+                            path="company"
+                            element={
+                                <Company
+                                    setActivePage={setActivePage}
+                                    onSelectCompany={handleCompanySelect}
+                                />
+                            }
+                        />
 
-                            <Route
-                                path="company/create"
-                                element={<CreateCompany setActivePage={setActivePage} />}
-                            />
+                        <Route
+                            path="company/create"
+                            element={<CreateCompany setActivePage={setActivePage} />}
+                        />
 
-                            <Route path="daybook" element={<Daybook />} />
-                            <Route path="voucher" element={<Voucher />} />
-                            <Route path="create" element={<CreateHome />} />
-                            <Route path="alter" element={<AlterPage />} />
-                            <Route path="settings" element={<Settings />} />
-                            <Route path="banking" element={<Banking />} />
-                            <Route path="reports" element={<Reports />} />
+                        <Route path="daybook" element={<Daybook />} />
+                        <Route path="voucher" element={<Voucher />} />
 
-                            <Route path="*" element={<Navigate to="/" replace />} />
-                        </Routes>
-                    </section>
+                        <Route path="create" element={<CreateHome />} />
+
+                        <Route path="alter" element={<AlterPage />} />
+                        <Route path="alter/ledger" element={<LedgerAlterPage />} />
+
+                        <Route path="settings" element={<Settings />} />
+                        <Route path="banking" element={<Banking />} />
+                        <Route path="reports" element={<Reports />} />
+
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
                 </section>
             </main>
         </section>

@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import Login from "./UserAccount/Login";
 import SignUp from "./UserAccount/signup";
 import HomePage from "./Pages/home";
+import LedgerAlterPage from "./Pages/AlterPage/ledger.Alter";
 
 function ProtectedRoute({ children }) {
     const token = localStorage.getItem("token");
@@ -23,6 +24,7 @@ function App() {
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
+                 
 
                 <Route
                     path="/*"

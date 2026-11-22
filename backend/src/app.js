@@ -4,6 +4,7 @@ import companyRouter from "./routes/company.Router.js";
 import ledgerRouter from "./routes/ledgerRouter.js";
 import voucherRouter from "./routes/voucherRouter.js";
 import cors from "cors";
+import groupRouter from "./routes/groupRouter.js";
 
 const app = express();
 
@@ -29,5 +30,7 @@ app.use("/api/auth", authRouter);
 app.use("/api", companyRouter);
 app.use("/api/companies/:companyId/ledgers", ledgerRouter);
 app.use("/api/companies/:companyId/vouchers", voucherRouter);
+
+app.use("/api/companies/:companyId/group" , groupRouter);
 
 export default app;
