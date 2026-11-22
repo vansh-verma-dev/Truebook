@@ -1,5 +1,4 @@
 import InvoiceVoucher from "./InvoiceVoucher";
-import { partyList } from "./VoucherParts";
 
 function Purchase() {
     return (
@@ -7,9 +6,8 @@ function Purchase() {
             type="purchase"
             title="Purchase Voucher"
             subtitle="Record purchase transactions and supplier invoices"
-            voucherNo="PV-0001"
             partyLabel="Supplier A/c"
-            partyList={partyList}
+            partyGroup="sundryCreditor"
         />
     );
 }

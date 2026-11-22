@@ -14,11 +14,184 @@ const voucherTypes = [
 ];
 
 const studentTypes = ["receipt", "payment", "contra", "journal"];
+const invoiceTypes = ["sales", "purchase"];
 const paymentModes = ["cash", "bank", "upi", "cheque", "other"];
+const notPartyGroups = ["sales", "purchase", "dutiesTaxes"];
+
+const round2 = (n) => Math.round(n * 100) / 100;
+
+const buildManualEntries = async (body, companyId) => {
+  const { entries } = body;
+
+  if (!Array.isArray(entries) || entries.length < 2) {
+    return { error: "At least 2 entries are required" };
+  }
+
+  const cleanEntries = [];
+
+  for (const entry of entries) {
+    const amount = Number(entry?.amount);
+
+    if (
+      typeof entry?.ledger !== "string" ||
+      !mongoose.isValidObjectId(entry.ledger) ||
+      !["Dr", "Cr"].includes(entry.type) ||
+      !(amount > 0)
+    ) {
+      return { error: "Each entry needs a ledger, type (Dr/Cr) and amount greater than 0" };
+    }
+
+    cleanEntries.push({ ledger: entry.ledger, type: entry.type, amount });
+  }
+
+  const totalDr = cleanEntries
+    .filter((entry) => entry.type === "Dr")
+    .reduce((sum, entry) => sum + entry.amount, 0);
+
+  const totalCr = cleanEntries
+    .filter((entry) => entry.type === "Cr")
+    .reduce((sum, entry) => sum + entry.amount, 0);
+
+  if (Math.round(totalDr * 100) !== Math.round(totalCr * 100)) {
+    return { error: "Total debit and total credit must be equal" };
+  }
+
+  const ledgerIds = [...new Set(cleanEntries.map((entry) => entry.ledger))];
+
+  const ledgerCount = await Ledger.countDocuments({
+    _id: { $in: ledgerIds },
+    company: companyId,
+    isActive: true,
+  });
+
+  if (ledgerCount !== ledgerIds.length) {
+    return { error: "One or more ledgers are invalid for this company" };
+  }
+
+  return { entries: cleanEntries, totalAmount: round2(totalDr) };
+};
+
+const buildInvoice = async (body, voucherType, companyId) => {
+  const { party, items } = body;
+
+  if (typeof party !== "string" || !mongoose.isValidObjectId(party)) {
+    return { error: "Party is required" };
+  }
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return { error: "At least 1 item is required" };
+  }
+
+  const cleanItems = [];
+  let subTotal = 0;
+  let gstTotal = 0;
+
+  for (const item of items) {
+    const quantity = Number(item?.quantity);
+    const rate = Number(item?.rate);
+    const gstRate = Number(item?.gstRate || 0);
+
+    if (
+      typeof item?.name !== "string" ||
+      item.name.trim() === "" ||
+      !(quantity > 0) ||
+      !(rate >= 0) ||
+      !(gstRate >= 0 && gstRate <= 100)
+    ) {
+      return { error: "Each item needs a name, quantity greater than 0, a valid rate and GST rate" };
+    }
+
+    const amount = round2(quantity * rate);
+
+    subTotal += amount;
+    gstTotal += (amount * gstRate) / 100;
+
+    cleanItems.push({
+      name: item.name.trim(),
+      quantity,
+      unit: typeof item.unit === "string" && item.unit ? item.unit : "Pcs",
+      rate,
+      gstRate,
+      amount,
+    });
+  }
+
+  subTotal = round2(subTotal);
+  gstTotal = round2(gstTotal);
+  const total = round2(subTotal + gstTotal);
+
+  if (!(total > 0)) {
+    return { error: "Invoice total must be greater than 0" };
+  }
+
+  const partyLedger = await Ledger.findOne({
+    _id: party,
+    company: companyId,
+    isActive: true,
+  });
+
+  if (!partyLedger || notPartyGroups.includes(partyLedger.group)) {
+    return { error: "Invalid party for this company" };
+  }
+
+  const isSales = voucherType === "sales";
+
+  const mainLedger = await Ledger.findOne({
+    company: companyId,
+    group: isSales ? "sales" : "purchase",
+    isActive: true,
+  });
+
+  if (!mainLedger) {
+    return {
+      error: isSales
+        ? "Create a Sales A/c ledger (group: sales) first"
+        : "Create a Purchase A/c ledger (group: purchase) first",
+    };
+  }
+
+  let gstLedger = null;
+
+  if (gstTotal > 0) {
+    const gstName = isSales ? "Output GST" : "Input GST";
+
+    gstLedger = await Ledger.findOne({
+      company: companyId,
+      group: "dutiesTaxes",
+      name: { $regex: `^${gstName}$`, $options: "i" },
+      isActive: true,
+    });
+
+    if (!gstLedger) {
+      return { error: `Create a "${gstName}" ledger (group: dutiesTaxes) first` };
+    }
+  }
+
+  let entries;
+
+  if (isSales) {
+    entries = [
+      { ledger: partyLedger._id, type: "Dr", amount: total },
+      { ledger: mainLedger._id, type: "Cr", amount: subTotal },
+    ];
+    if (gstLedger) entries.push({ ledger: gstLedger._id, type: "Cr", amount: gstTotal });
+  } else {
+    entries = [{ ledger: mainLedger._id, type: "Dr", amount: subTotal }];
+    if (gstLedger) entries.push({ ledger: gstLedger._id, type: "Dr", amount: gstTotal });
+    entries.push({ ledger: partyLedger._id, type: "Cr", amount: total });
+  }
+
+  return {
+    party: partyLedger._id,
+    items: cleanItems,
+    entries,
+    totalAmount: total,
+  };
+};
 
 const createVoucher = async (req, res) => {
   try {
-    const { voucherType, date, narration, refNo, paymentMode, entries } = req.body;
+    const { voucherType, date, narration, refNo, paymentMode } = req.body;
 
     if (typeof voucherType !== "string" || !voucherTypes.includes(voucherType)) {
       return res.status(400).json({ success: false, message: "Invalid voucher type" });
@@ -39,61 +212,14 @@ const createVoucher = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid payment mode" });
     }
 
-    if (!Array.isArray(entries) || entries.length < 2) {
-      return res.status(400).json({
-        success: false,
-        message: "At least 2 entries are required",
-      });
-    }
+    const isInvoice = invoiceTypes.includes(voucherType);
 
-    const cleanEntries = [];
+    const built = isInvoice
+      ? await buildInvoice(req.body, voucherType, req.company._id)
+      : await buildManualEntries(req.body, req.company._id);
 
-    for (const entry of entries) {
-      const amount = Number(entry.amount);
-
-      if (
-        typeof entry.ledger !== "string" ||
-        !mongoose.isValidObjectId(entry.ledger) ||
-        !["Dr", "Cr"].includes(entry.type) ||
-        !(amount > 0)
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: "Each entry needs a ledger, type (Dr/Cr) and amount greater than 0",
-        });
-      }
-
-      cleanEntries.push({ ledger: entry.ledger, type: entry.type, amount });
-    }
-
-    const totalDr = cleanEntries
-      .filter((entry) => entry.type === "Dr")
-      .reduce((sum, entry) => sum + entry.amount, 0);
-
-    const totalCr = cleanEntries
-      .filter((entry) => entry.type === "Cr")
-      .reduce((sum, entry) => sum + entry.amount, 0);
-
-    if (Math.round(totalDr * 100) !== Math.round(totalCr * 100)) {
-      return res.status(400).json({
-        success: false,
-        message: "Total debit and total credit must be equal",
-      });
-    }
-
-    const ledgerIds = [...new Set(cleanEntries.map((entry) => entry.ledger))];
-
-    const ledgerCount = await Ledger.countDocuments({
-      _id: { $in: ledgerIds },
-      company: req.company._id,
-      isActive: true,
-    });
-
-    if (ledgerCount !== ledgerIds.length) {
-      return res.status(400).json({
-        success: false,
-        message: "One or more ledgers are invalid for this company",
-      });
+    if (built.error) {
+      return res.status(400).json({ success: false, message: built.error });
     }
 
     const lastVoucher = await Voucher.findOne({
@@ -111,9 +237,11 @@ const createVoucher = async (req, res) => {
       date,
       narration: typeof narration === "string" ? narration : "",
       refNo: typeof refNo === "string" ? refNo : "",
-      paymentMode,
-      entries: cleanEntries,
-      totalAmount: Math.round(totalDr * 100) / 100,
+      paymentMode: isInvoice ? undefined : paymentMode,
+      party: built.party,
+      items: built.items,
+      entries: built.entries,
+      totalAmount: built.totalAmount,
     });
 
     res.status(201).json({

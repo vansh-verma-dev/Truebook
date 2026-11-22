@@ -1,24 +1,57 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
     VoucherHeader,
     VoucherFooter,
-    cashBankList,
-    ledgerList,
-    partyList,
     money,
     todayDate,
     inputClass,
 } from "./VoucherParts";
+import {
+    getSelectedCompany,
+    fetchLedgers,
+    saveVoucher,
+    getVoucherNo,
+} from "./voucherApi";
 
-const allLedgers = [...cashBankList, ...ledgerList, ...partyList];
+const emptyRows = () => [
+    { side: "Dr", ledger: "", amount: "" },
+    { side: "Cr", ledger: "", amount: "" },
+];
+
+function Message({ title, text }) {
+    return (
+        <section className="flex h-full flex-col items-center justify-center bg-slate-50 text-center">
+            <p className="text-lg font-semibold text-slate-800">{title}</p>
+            <p className="mt-1 max-w-sm text-sm text-slate-500">{text}</p>
+        </section>
+    );
+}
 
 function Journal() {
+    const companyId = getSelectedCompany()?._id;
+
+    const [ledgers, setLedgers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [savedNo, setSavedNo] = useState("");
+
     const [date, setDate] = useState(todayDate());
     const [narration, setNarration] = useState("");
-    const [rows, setRows] = useState([
-        { side: "Dr", ledger: "", amount: "" },
-        { side: "Cr", ledger: "", amount: "" },
-    ]);
+    const [rows, setRows] = useState(emptyRows);
+
+    useEffect(() => {
+        if (!companyId) {
+            setLoading(false);
+            return;
+        }
+
+        fetchLedgers(companyId)
+            .then(setLedgers)
+            .catch((err) => setError(err.message))
+            .finally(() => setLoading(false));
+    }, [companyId]);
 
     const filledRows = rows.filter((row) => row.ledger && Number(row.amount) > 0);
 
@@ -41,23 +74,61 @@ function Journal() {
 
     const removeRow = (index) => setRows(rows.filter((row, i) => i !== index));
 
-    const handleSave = () => {
-        const entries = filledRows.map((row) => ({
-            ledger: row.ledger,
-            type: row.side,
-            amount: Number(row.amount),
-        }));
+    const handleSave = async () => {
+        try {
+            setSaving(true);
 
-        console.log({ voucherType: "journal", date, narration, entries });
-        // call api here
+            const voucher = await saveVoucher(companyId, {
+                voucherType: "journal",
+                date,
+                narration,
+                entries: filledRows.map((row) => ({
+                    ledger: row.ledger,
+                    type: row.side,
+                    amount: Number(row.amount),
+                })),
+            });
+
+            const voucherNo = getVoucherNo(voucher.voucherType, voucher.voucherNumber);
+
+            setSavedNo(voucherNo);
+            toast.success(`Voucher saved (${voucherNo})`);
+            setRows(emptyRows());
+            setNarration("");
+        } catch (err) {
+            toast.error(err.message);
+        } finally {
+            setSaving(false);
+        }
     };
+
+    if (!companyId) {
+        return <Message title="No company selected" text="Select a company first to create vouchers." />;
+    }
+
+    if (loading) {
+        return <Message title="Loading..." text="Fetching your ledgers" />;
+    }
+
+    if (error) {
+        return <Message title="Something went wrong" text={error} />;
+    }
+
+    if (ledgers.length < 2) {
+        return (
+            <Message
+                title="Not enough ledgers"
+                text="A journal voucher needs at least 2 ledgers. Create them first."
+            />
+        );
+    }
 
     return (
         <section className="flex h-full flex-col bg-slate-50">
             <VoucherHeader
                 title="Journal Voucher"
                 subtitle="Record adjustment and non-cash accounting transactions"
-                voucherNo="JV-00001"
+                voucherNo={savedNo || "Auto"}
                 date={date}
                 setDate={setDate}
             />
@@ -92,9 +163,9 @@ function Journal() {
                                 className={`${inputClass} max-w-xs`}
                             >
                                 <option value="">Select ledger</option>
-                                {allLedgers.map((name) => (
-                                    <option key={name} value={name}>
-                                        {name}
+                                {ledgers.map((ledger) => (
+                                    <option key={ledger._id} value={ledger._id}>
+                                        {ledger.name}
                                     </option>
                                 ))}
                             </select>
@@ -146,7 +217,7 @@ function Journal() {
                 narration={narration}
                 setNarration={setNarration}
                 onSave={handleSave}
-                saveDisabled={!isBalanced}
+                saveDisabled={!isBalanced || saving}
             >
                 <div className="flex gap-6">
                     <div>

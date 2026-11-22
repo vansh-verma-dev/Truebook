@@ -1,34 +1,66 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
     VoucherHeader,
     VoucherFooter,
-    itemList,
     unitList,
-    gstList,
     money,
     todayDate,
     inputClass,
 } from "./VoucherParts";
+import {
+    getSelectedCompany,
+    fetchLedgers,
+    saveVoucher,
+    getVoucherNo,
+} from "./voucherApi";
 
-const emptyRow = { item: "", qty: "", unit: "Pcs", rate: "", gst: 0 };
+const emptyRow = { name: "", qty: "", unit: "Pcs", rate: "" };
 
 const rowAmount = (row) => Number(row.qty || 0) * Number(row.rate || 0);
 
-function InvoiceVoucher({ type, title, subtitle, voucherNo, partyLabel, partyList }) {
+function Message({ title, text }) {
+    return (
+        <section className="flex h-full flex-col items-center justify-center bg-slate-50 text-center">
+            <p className="text-lg font-semibold text-slate-800">{title}</p>
+            <p className="mt-1 max-w-sm text-sm text-slate-500">{text}</p>
+        </section>
+    );
+}
+
+function InvoiceVoucher({ type, title, subtitle, partyLabel, partyGroup }) {
+    const companyId = getSelectedCompany()?._id;
+
+    const [ledgers, setLedgers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [savedNo, setSavedNo] = useState("");
+
     const [date, setDate] = useState(todayDate());
     const [party, setParty] = useState("");
+    const [refNo, setRefNo] = useState("");
     const [narration, setNarration] = useState("");
     const [rows, setRows] = useState([emptyRow]);
 
-    const balance = "50,000 Cr";
+    useEffect(() => {
+        if (!companyId) {
+            setLoading(false);
+            return;
+        }
 
-    const filledRows = rows.filter((row) => row.item && rowAmount(row) > 0);
-    const subTotal = filledRows.reduce((sum, row) => sum + rowAmount(row), 0);
-    const gstTotal = filledRows.reduce(
-        (sum, row) => sum + (rowAmount(row) * Number(row.gst)) / 100,
-        0
+        fetchLedgers(companyId)
+            .then(setLedgers)
+            .catch((err) => setError(err.message))
+            .finally(() => setLoading(false));
+    }, [companyId]);
+
+    const partyLedgers = ledgers.filter((ledger) => ledger.group === partyGroup);
+
+    const filledRows = rows.filter(
+        (row) => row.name.trim() && Number(row.qty) > 0 && row.rate !== ""
     );
-    const grandTotal = subTotal + gstTotal;
+    const total = filledRows.reduce((sum, row) => sum + rowAmount(row), 0);
 
     const changeRow = (index, field, value) => {
         setRows(rows.map((row, i) => (i === index ? { ...row, [field]: value } : row)));
@@ -38,26 +70,66 @@ function InvoiceVoucher({ type, title, subtitle, voucherNo, partyLabel, partyLis
 
     const removeRow = (index) => setRows(rows.filter((row, i) => i !== index));
 
-    const handleSave = () => {
-        const items = filledRows.map((row) => ({
-            name: row.item,
-            quantity: Number(row.qty),
-            unit: row.unit,
-            rate: Number(row.rate),
-            gstRate: Number(row.gst),
-            amount: rowAmount(row),
-        }));
+    const handleSave = async () => {
+        try {
+            setSaving(true);
 
-        console.log({ voucherType: type, date, party, narration, items, totalAmount: grandTotal });
-        // call api here
+            const voucher = await saveVoucher(companyId, {
+                voucherType: type,
+                date,
+                party,
+                refNo,
+                narration,
+                items: filledRows.map((row) => ({
+                    name: row.name.trim(),
+                    quantity: Number(row.qty),
+                    unit: row.unit,
+                    rate: Number(row.rate),
+                })),
+            });
+
+            const voucherNo = getVoucherNo(voucher.voucherType, voucher.voucherNumber);
+
+            setSavedNo(voucherNo);
+            toast.success(`Voucher saved (${voucherNo})`);
+            setParty("");
+            setRefNo("");
+            setNarration("");
+            setRows([emptyRow]);
+        } catch (err) {
+            toast.error(err.message);
+        } finally {
+            setSaving(false);
+        }
     };
+
+    if (!companyId) {
+        return <Message title="No company selected" text="Select a company first to create vouchers." />;
+    }
+
+    if (loading) {
+        return <Message title="Loading..." text="Fetching your ledgers" />;
+    }
+
+    if (error) {
+        return <Message title="Something went wrong" text={error} />;
+    }
+
+    if (partyLedgers.length === 0) {
+        return (
+            <Message
+                title={`No ${partyGroup === "sundryDebtor" ? "customer" : "supplier"} ledger`}
+                text={`Create a ledger with group ${partyGroup} first, then come back here.`}
+            />
+        );
+    }
 
     return (
         <section className="flex h-full flex-col bg-slate-50">
             <VoucherHeader
                 title={title}
                 subtitle={subtitle}
-                voucherNo={voucherNo}
+                voucherNo={savedNo || "Auto"}
                 date={date}
                 setDate={setDate}
             />
@@ -75,28 +147,32 @@ function InvoiceVoucher({ type, title, subtitle, voucherNo, partyLabel, partyLis
                                 className={`${inputClass} w-64`}
                             >
                                 <option value="">Select party</option>
-                                {partyList.map((name) => (
-                                    <option key={name} value={name}>
-                                        {name}
+                                {partyLedgers.map((ledger) => (
+                                    <option key={ledger._id} value={ledger._id}>
+                                        {ledger.name}
                                     </option>
                                 ))}
                             </select>
                         </div>
 
-                        {party && (
-                            <p className="text-sm text-slate-500">
-                                Current Balance :{" "}
-                                <span className="font-semibold text-green-600">₹ {balance}</span>
-                            </p>
-                        )}
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-slate-700">
+                                Bill / Ref No
+                            </label>
+                            <input
+                                value={refNo}
+                                onChange={(e) => setRefNo(e.target.value)}
+                                placeholder="Optional"
+                                className={`${inputClass} w-40`}
+                            />
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-[1fr_90px_90px_120px_90px_130px_36px] gap-3 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <div className="grid grid-cols-[1fr_100px_100px_130px_140px_36px] gap-3 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
                         <p>Item Name</p>
                         <p className="text-center">Qty</p>
                         <p className="text-center">Unit</p>
                         <p className="text-right">Rate</p>
-                        <p className="text-center">GST %</p>
                         <p className="text-right">Amount</p>
                         <span></span>
                     </div>
@@ -104,20 +180,14 @@ function InvoiceVoucher({ type, title, subtitle, voucherNo, partyLabel, partyLis
                     {rows.map((row, index) => (
                         <div
                             key={index}
-                            className="grid grid-cols-[1fr_90px_90px_120px_90px_130px_36px] items-center gap-3 border-b border-slate-100 px-4 py-2 hover:bg-orange-50/50"
+                            className="grid grid-cols-[1fr_100px_100px_130px_140px_36px] items-center gap-3 border-b border-slate-100 px-4 py-2 hover:bg-orange-50/50"
                         >
-                            <select
-                                value={row.item}
-                                onChange={(e) => changeRow(index, "item", e.target.value)}
-                                className={`${inputClass} max-w-xs`}
-                            >
-                                <option value="">Select item</option>
-                                {itemList.map((name) => (
-                                    <option key={name} value={name}>
-                                        {name}
-                                    </option>
-                                ))}
-                            </select>
+                            <input
+                                value={row.name}
+                                onChange={(e) => changeRow(index, "name", e.target.value)}
+                                placeholder="Item name"
+                                className={`${inputClass} max-w-sm`}
+                            />
 
                             <input
                                 type="number"
@@ -148,18 +218,6 @@ function InvoiceVoucher({ type, title, subtitle, voucherNo, partyLabel, partyLis
                                 onChange={(e) => changeRow(index, "rate", e.target.value)}
                                 className={`${inputClass} text-right`}
                             />
-
-                            <select
-                                value={row.gst}
-                                onChange={(e) => changeRow(index, "gst", e.target.value)}
-                                className={inputClass}
-                            >
-                                {gstList.map((rate) => (
-                                    <option key={rate} value={rate}>
-                                        {rate}%
-                                    </option>
-                                ))}
-                            </select>
 
                             <input
                                 readOnly
@@ -194,13 +252,12 @@ function InvoiceVoucher({ type, title, subtitle, voucherNo, partyLabel, partyLis
                 narration={narration}
                 setNarration={setNarration}
                 onSave={handleSave}
-                saveDisabled={!party || filledRows.length === 0}
+                saveDisabled={!party || filledRows.length === 0 || saving}
             >
                 <p className="text-xs text-slate-500">
-                    Sub Total ₹ {money(subTotal)} + GST ₹ {money(gstTotal)}
+                    {saving ? "Saving..." : `Total Amount (${filledRows.length} items)`}
                 </p>
-                <p className="mt-1 text-xs text-slate-500">Total Amount</p>
-                <h2 className="text-2xl font-bold text-orange-600">₹ {money(grandTotal)}</h2>
+                <h2 className="text-2xl font-bold text-orange-600">₹ {money(total)}</h2>
             </VoucherFooter>
         </section>
     );

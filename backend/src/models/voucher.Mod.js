@@ -21,6 +21,18 @@ const entrySchema = new mongoose.Schema(
   { _id: false }
 );
 
+const itemSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    quantity: { type: Number, required: true, min: 0.01 },
+    unit: { type: String, default: "Pcs" },
+    rate: { type: Number, required: true, min: 0 },
+    gstRate: { type: Number, default: 0, min: 0 },
+    amount: { type: Number, default: 0, min: 0 },
+  },
+  { _id: false }
+);
+
 const voucherSchema = new mongoose.Schema(
   {
     company: {
@@ -58,7 +70,9 @@ const voucherSchema = new mongoose.Schema(
       type: String,
       enum: ["cash", "bank", "upi", "cheque", "other"],
     },
-
+    party: { type: mongoose.Schema.Types.ObjectId, ref: "Ledger" },
+    items: [itemSchema],
+    
     entries: {
       type: [entrySchema],
       validate: {
