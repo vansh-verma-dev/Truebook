@@ -1,23 +1,20 @@
 import { useEffect, useState } from "react";
 import { FaSearch, FaPlus, FaPen, FaTrash } from "react-icons/fa";
 
-const groups = {
-    sundryDebtor: "Sundry Debtors",
-    sundryCreditor: "Sundry Creditors",
-    bank: "Bank Accounts",
-    cash: "Cash-in-Hand",
-    sales: "Sales Accounts",
-    purchase: "Purchase Accounts",
-    indirectExpense: "Indirect Expenses",
-    indirectIncome: "Indirect Income",
-    fixedAsset: "Fixed Assets",
-    dutiesTaxes: "Duties & Taxes",
-    capital: "Capital Account",
+const natures = {
+    asset: "Asset",
+    liability: "Liability",
+    income: "Income",
+    expense: "Expense",
 };
 
 const rowGrid = "grid grid-cols-[1fr_170px_150px_160px_110px_110px] items-center gap-3";
 
-const emptyForm = { name: "", group: "sundryDebtor", openingBalance: "", openingType: "Dr" };
+const emptyForm = { name: "", group: "", openingBalance: "", openingType: "Dr" };
+const emptyGroupForm = { name: "", nature: "asset" };
+
+// default groups ke paas `key` hota hai, custom groups ke paas sirf _id
+const groupValue = (g) => g.key || g._id;
 
 const getCompanyId = () => {
     try {
@@ -44,13 +41,16 @@ const money = (amount) =>
 
 function LedgerAlterPage() {
     const companyId = getCompanyId();
-    const url = `${import.meta.env.VITE_API_URL}/api/companies/${companyId}/ledgers`;
+    const baseUrl = `${import.meta.env.VITE_API_URL}/api/companies/${companyId}`;
+    const url = `${baseUrl}/ledgers`;
+    const groupUrl = `${baseUrl}/group`;
     const headers = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
     };
 
     const [ledgers, setLedgers] = useState([]);
+    const [groupList, setGroupList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
@@ -62,14 +62,34 @@ function LedgerAlterPage() {
     const [saving, setSaving] = useState(false);
     const [formError, setFormError] = useState("");
 
+    // ledger form ke andar group create / alter
+    const [showGroupForm, setShowGroupForm] = useState(false);
+    const [groupEditId, setGroupEditId] = useState(null);
+    const [groupForm, setGroupForm] = useState(emptyGroupForm);
+    const [groupSaving, setGroupSaving] = useState(false);
+    const [groupError, setGroupError] = useState("");
+
+    const fetchGroups = async () => {
+        const res = await fetch(groupUrl, { headers });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to load groups");
+        const list = data.groups || [];
+        setGroupList(list);
+        return list;
+    };
+
     const fetchLedgers = async () => {
+        const res = await fetch(url, { headers });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to load ledgers");
+        setLedgers(data.ledger || []);
+    };
+
+    const loadAll = async () => {
         try {
             setLoading(true);
             setError("");
-            const res = await fetch(url, { headers });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Failed to load ledgers");
-            setLedgers(data.ledger || []);
+            await Promise.all([fetchGroups(), fetchLedgers()]);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -77,14 +97,28 @@ function LedgerAlterPage() {
         }
     };
 
+    const refreshLedgers = async () => {
+        try {
+            setError("");
+            await fetchLedgers();
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
     useEffect(() => {
-        if (companyId) fetchLedgers();
+        if (companyId) loadAll();
         else setLoading(false);
     }, [companyId]);
 
+    const groupLabel = (value) =>
+        groupList.find((g) => groupValue(g) === value)?.name || value;
+
+    const selectedGroup = groupList.find((g) => groupValue(g) === form.group);
+
     const openCreate = () => {
         setEditId(null);
-        setForm(emptyForm);
+        setForm({ ...emptyForm, group: groupList[0] ? groupValue(groupList[0]) : "" });
         setFormError("");
         setShowForm(true);
     };
@@ -117,7 +151,7 @@ function LedgerAlterPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || "Failed to save ledger");
             setShowForm(false);
-            fetchLedgers();
+            refreshLedgers();
         } catch (err) {
             setFormError(err.message);
         } finally {
@@ -136,7 +170,7 @@ function LedgerAlterPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || "Failed to delete ledger");
             setDeleteItem(null);
-            fetchLedgers();
+            refreshLedgers();
         } catch (err) {
             setFormError(err.message);
         } finally {
@@ -144,9 +178,59 @@ function LedgerAlterPage() {
         }
     };
 
+    // ---------- group create / alter (ledger form ke andar se) ----------
+    const openGroupCreate = () => {
+        setGroupEditId(null);
+        setGroupForm(emptyGroupForm);
+        setGroupError("");
+        setShowGroupForm(true);
+    };
+
+    const openGroupAlter = () => {
+        if (!selectedGroup || selectedGroup.isDefault) return;
+        setGroupEditId(selectedGroup._id);
+        setGroupForm({ name: selectedGroup.name, nature: selectedGroup.nature || "asset" });
+        setGroupError("");
+        setShowGroupForm(true);
+    };
+
+    const handleGroupSave = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+            setGroupSaving(true);
+            setGroupError("");
+            const res = await fetch(groupEditId ? `${groupUrl}/${groupEditId}` : groupUrl, {
+                method: groupEditId ? "PUT" : "POST",
+                headers,
+                body: JSON.stringify(groupForm),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Failed to save group");
+
+            const list = await fetchGroups();
+
+            // naya group bana to usko ledger form me auto-select karo
+            if (!groupEditId) {
+                const created = list.find(
+                    (g) => !g.isDefault && g.name.toLowerCase() === groupForm.name.trim().toLowerCase()
+                );
+                if (created) setForm((f) => ({ ...f, group: groupValue(created) }));
+            }
+            setShowGroupForm(false);
+        } catch (err) {
+            setGroupError(err.message);
+        } finally {
+            setGroupSaving(false);
+        }
+    };
+
     const rows = ledgers.filter((l) =>
-        `${l.name} ${groups[l.group] || l.group}`.toLowerCase().includes(search.toLowerCase().trim())
+        `${l.name} ${groupLabel(l.group)}`.toLowerCase().includes(search.toLowerCase().trim())
     );
+
+    const defaultGroups = groupList.filter((g) => g.isDefault);
+    const customGroups = groupList.filter((g) => !g.isDefault);
 
     return (
         <div className="w-[83vw]">
@@ -165,7 +249,8 @@ function LedgerAlterPage() {
 
                     <button
                         onClick={openCreate}
-                        className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                        disabled={loading || groupList.length === 0}
+                        className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
                     >
                         <FaPlus className="text-xs" />
                         Create Ledger
@@ -191,7 +276,7 @@ function LedgerAlterPage() {
                             <div className="py-16 text-center">
                                 <p className="text-red-600 font-medium">{error}</p>
                                 <button
-                                    onClick={fetchLedgers}
+                                    onClick={loadAll}
                                     className="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
                                 >
                                     Retry
@@ -214,7 +299,7 @@ function LedgerAlterPage() {
 
                                     <div>
                                         <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 whitespace-nowrap">
-                                            {groups[ledger.group] || ledger.group}
+                                            {groupLabel(ledger.group)}
                                         </span>
                                     </div>
 
@@ -281,17 +366,57 @@ function LedgerAlterPage() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Under group</label>
+                                <div className="mb-1 flex items-center justify-between">
+                                    <label className="block text-sm font-medium text-gray-700">Under group</label>
+                                    <div className="flex items-center gap-3 text-xs font-medium">
+                                        <button
+                                            type="button"
+                                            onClick={openGroupCreate}
+                                            className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                                        >
+                                            <FaPlus className="text-[10px]" />
+                                            Create
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={openGroupAlter}
+                                            disabled={!selectedGroup || selectedGroup.isDefault}
+                                            title={
+                                                selectedGroup?.isDefault
+                                                    ? "Default groups cannot be changed"
+                                                    : "Alter selected group"
+                                            }
+                                            className="flex items-center gap-1 text-gray-600 hover:text-blue-700 disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:text-gray-300"
+                                        >
+                                            <FaPen className="text-[10px]" />
+                                            Alter
+                                        </button>
+                                    </div>
+                                </div>
                                 <select
                                     value={form.group}
+                                    required
                                     onChange={(e) => setForm({ ...form, group: e.target.value })}
                                     className="w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 >
-                                    {Object.entries(groups).map(([key, label]) => (
-                                        <option key={key} value={key}>
-                                            {label}
-                                        </option>
-                                    ))}
+                                    {defaultGroups.length > 0 && (
+                                        <optgroup label="Default Groups">
+                                            {defaultGroups.map((g) => (
+                                                <option key={groupValue(g)} value={groupValue(g)}>
+                                                    {g.name}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                    {customGroups.length > 0 && (
+                                        <optgroup label="My Groups">
+                                            {customGroups.map((g) => (
+                                                <option key={groupValue(g)} value={groupValue(g)}>
+                                                    {g.name}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
                                 </select>
                             </div>
 
@@ -333,6 +458,65 @@ function LedgerAlterPage() {
                                 className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
                             >
                                 {saving ? "Saving..." : editId ? "Save changes" : "Create ledger"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {/* Group create / alter popup (ledger form ke upar khulta hai) */}
+            {showGroupForm && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
+                    <form onSubmit={handleGroupSave} className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+                        <h2 className="text-lg font-semibold text-gray-800">
+                            {groupEditId ? "Alter Group" : "Create Group"}
+                        </h2>
+
+                        <div className="mt-5 space-y-4">
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-gray-700">Group name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    autoFocus
+                                    value={groupForm.name}
+                                    onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })}
+                                    className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-gray-700">Nature</label>
+                                <select
+                                    value={groupForm.nature}
+                                    onChange={(e) => setGroupForm({ ...groupForm, nature: e.target.value })}
+                                    className="w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                >
+                                    {Object.entries(natures).map(([key, label]) => (
+                                        <option key={key} value={key}>
+                                            {label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {groupError && <p className="mt-4 text-sm text-red-600">{groupError}</p>}
+
+                        <div className="mt-6 flex justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowGroupForm(false)}
+                                className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={groupSaving}
+                                className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                            >
+                                {groupSaving ? "Saving..." : groupEditId ? "Save changes" : "Create group"}
                             </button>
                         </div>
                     </form>
