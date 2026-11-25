@@ -53,7 +53,7 @@ function AlterHome() {
                 {
                     name: "Voucher Type",
                     description: "Edit voucher configurations",
-                    path: "/alter/voucher-type",
+                    path: "/",
                     icon: PiNotePencilBold,
                 },
             ],
