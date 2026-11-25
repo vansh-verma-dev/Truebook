@@ -13,16 +13,21 @@ import {
     saveVoucher,
     getVoucherNo,
 } from "./voucherApi";
+import LedgerQuickCreate, { useNewLedgerShortcut } from "./LedgerQuickCreate";
 
 const emptyRow = { ledger: "", amount: "" };
 
-const isCashBank = (ledger) => ledger.group === "cash" || ledger.group === "bank";
+const NEW_LEDGER = "__new__";
 
-function Message({ title, text }) {
+const isCashBank = (ledger) => ledger.group === "cash" || ledger.group === "bank";
+const isCashBankGroup = (g) => g.key === "cash" || g.key === "bank";
+
+function Message({ title, text, children }) {
     return (
         <section className="flex h-full flex-col items-center justify-center bg-slate-50 text-center">
             <p className="text-lg font-semibold text-slate-800">{title}</p>
             <p className="mt-1 max-w-sm text-sm text-slate-500">{text}</p>
+            {children}
         </section>
     );
 }
@@ -48,6 +53,9 @@ function CashBankVoucher({
     const [narration, setNarration] = useState("");
     const [rows, setRows] = useState([emptyRow]);
 
+    // null | { type: "account" } | { type: "row", index }
+    const [createTarget, setCreateTarget] = useState(null);
+
     useEffect(() => {
         if (!companyId) {
             setLoading(false);
@@ -68,6 +76,7 @@ function CashBankVoucher({
     const selectedAccount = ledgers.find((ledger) => ledger._id === account);
     const rowSide = accountSide === "Dr" ? "Cr" : "Dr";
 
+    // Contra: sirf baaki Cash/Bank | Payment & Receipt: Cash/Bank ke alawa sab
     const particularLedgers = onlyCashBank
         ? accountLedgers.filter((ledger) => ledger._id !== account)
         : ledgers.filter((ledger) => !isCashBank(ledger));
@@ -77,13 +86,66 @@ function CashBankVoucher({
     );
     const total = filledRows.reduce((sum, row) => sum + Number(row.amount), 0);
 
+    // jo ledger kisi row me select ho chuka hai, wo doosri rows me nahi dikhega
+    const usedLedgers = rows.map((row) => row.ledger).filter(Boolean);
+
+    // account badalne par agar wahi ledger kisi row me tha, to wo row khali ho jaye
+    const changeAccount = (id) => {
+        if (id === NEW_LEDGER) {
+            setCreateTarget({ type: "account" });
+            return;
+        }
+        setAccount(id);
+        setRows(rows.map((row) => (row.ledger === id ? { ...row, ledger: "" } : row)));
+    };
+
     const changeRow = (index, field, value) => {
+        if (field === "ledger" && value === NEW_LEDGER) {
+            setCreateTarget({ type: "row", index });
+            return;
+        }
         setRows(rows.map((row, i) => (i === index ? { ...row, [field]: value } : row)));
     };
 
     const addRow = () => setRows([...rows, emptyRow]);
 
     const removeRow = (index) => setRows(rows.filter((row, i) => i !== index));
+
+    // Ctrl + N / Alt + N: pehli khali row ke liye ledger banao
+    useNewLedgerShortcut(() => {
+        if (!companyId || loading || error || createTarget) return;
+
+        if (accountLedgers.length === 0) {
+            setCreateTarget({ type: "account" });
+            return;
+        }
+
+        const emptyIndex = rows.findIndex((row) => !row.ledger);
+        if (emptyIndex >= 0) {
+            setCreateTarget({ type: "row", index: emptyIndex });
+        } else {
+            setRows([...rows, emptyRow]);
+            setCreateTarget({ type: "row", index: rows.length });
+        }
+    });
+
+    const handleCreated = (list, created) => {
+        setLedgers(list);
+
+        if (created) {
+            if (createTarget.type === "account") {
+                setAccount(created._id);
+            } else {
+                setRows(
+                    rows.map((row, i) =>
+                        i === createTarget.index ? { ...row, ledger: created._id } : row
+                    )
+                );
+            }
+        }
+
+        setCreateTarget(null);
+    };
 
     const handleSave = async () => {
         try {
@@ -121,6 +183,31 @@ function CashBankVoucher({
         }
     };
 
+    // ledger banane wala popup kis type ke groups dikhaye
+    const accountMode = createTarget?.type === "account";
+    const rowCashBankOnly = onlyCashBank && !accountMode;
+
+    const modal = createTarget && (
+        <LedgerQuickCreate
+            companyId={companyId}
+            title={accountMode ? `Create ${accountLabel} Ledger` : "Create Ledger"}
+            groupFilter={
+                accountMode || rowCashBankOnly
+                    ? isCashBankGroup
+                    : (g) => !isCashBankGroup(g)
+            }
+            defaultGroup={
+                accountMode || rowCashBankOnly
+                    ? "bank"
+                    : type === "receipt"
+                    ? "sundryDebtor"
+                    : "sundryCreditor"
+            }
+            onClose={() => setCreateTarget(null)}
+            onCreated={handleCreated}
+        />
+    );
+
     if (!companyId) {
         return <Message title="No company selected" text="Select a company first to create vouchers." />;
     }
@@ -133,12 +220,31 @@ function CashBankVoucher({
         return <Message title="Something went wrong" text={error} />;
     }
 
-    if (accountLedgers.length === 0) {
+    if (accountLedgers.length === 0 || (onlyCashBank && accountLedgers.length < 2)) {
         return (
-            <Message
-                title="No Cash or Bank ledger"
-                text="Create a ledger with group Cash or Bank first, then come back here."
-            />
+            <>
+                <Message
+                    title={
+                        accountLedgers.length === 0
+                            ? "No Cash or Bank ledger"
+                            : "Need 2 Cash / Bank ledgers"
+                    }
+                    text={
+                        onlyCashBank
+                            ? "Contra transfers money between two Cash / Bank accounts. Create them to continue."
+                            : "Create a Cash or Bank ledger to continue."
+                    }
+                >
+                    <button
+                        type="button"
+                        onClick={() => setCreateTarget({ type: "account" })}
+                        className="mt-4 h-10 rounded-lg bg-orange-500 px-5 text-sm font-semibold text-white hover:bg-orange-600"
+                    >
+                        + Create Cash / Bank ledger
+                    </button>
+                </Message>
+                {modal}
+            </>
         );
     }
 
@@ -163,15 +269,19 @@ function CashBankVoucher({
                         </span>
                         <select
                             value={account}
-                            onChange={(e) => setAccount(e.target.value)}
+                            onChange={(e) => changeAccount(e.target.value)}
                             className={`${inputClass} w-56`}
                         >
+                            <option value={NEW_LEDGER}>+ Create new ledger</option>
                             {accountLedgers.map((ledger) => (
                                 <option key={ledger._id} value={ledger._id}>
                                     {ledger.name}
                                 </option>
                             ))}
                         </select>
+                        <span className="ml-auto text-xs text-slate-400">
+                            Alt + N : new ledger
+                        </span>
                     </div>
 
                     <div className="grid grid-cols-[1fr_180px_40px] gap-3 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
@@ -191,11 +301,18 @@ function CashBankVoucher({
                                 className={`${inputClass} max-w-xs`}
                             >
                                 <option value="">Select ledger</option>
-                                {particularLedgers.map((ledger) => (
-                                    <option key={ledger._id} value={ledger._id}>
-                                        {ledger.name}
-                                    </option>
-                                ))}
+                                <option value={NEW_LEDGER}>+ Create new ledger</option>
+                                {particularLedgers
+                                    .filter(
+                                        (ledger) =>
+                                            ledger._id === row.ledger ||
+                                            !usedLedgers.includes(ledger._id)
+                                    )
+                                    .map((ledger) => (
+                                        <option key={ledger._id} value={ledger._id}>
+                                            {ledger.name}
+                                        </option>
+                                    ))}
                             </select>
 
                             <input
@@ -241,6 +358,8 @@ function CashBankVoucher({
                 </p>
                 <h2 className="text-2xl font-bold text-orange-600">₹ {money(total)}</h2>
             </VoucherFooter>
+
+            {modal}
         </section>
     );
 }

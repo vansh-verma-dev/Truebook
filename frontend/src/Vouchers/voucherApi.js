@@ -41,6 +41,36 @@ export const fetchLedgers = async (companyId) => {
     return data.ledger || data.data || [];
 };
 
+export const fetchGroups = async (companyId) => {
+    const response = await fetch(`${API}/api/companies/${companyId}/group`, {
+        headers: authHeaders(),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to load groups");
+    }
+
+    return data.groups || [];
+};
+
+export const createLedger = async (companyId, payload) => {
+    const response = await fetch(`${API}/api/companies/${companyId}/ledgers`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to create ledger");
+    }
+
+    return data;
+};
+
 export const saveVoucher = async (companyId, payload) => {
     const response = await fetch(`${API}/api/companies/${companyId}/vouchers`, {
         method: "POST",

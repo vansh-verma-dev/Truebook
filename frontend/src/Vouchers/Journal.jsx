@@ -13,17 +13,21 @@ import {
     saveVoucher,
     getVoucherNo,
 } from "./voucherApi";
+import LedgerQuickCreate, { useNewLedgerShortcut } from "./LedgerQuickCreate";
+
+const NEW_LEDGER = "__new__";
 
 const emptyRows = () => [
     { side: "Dr", ledger: "", amount: "" },
     { side: "Cr", ledger: "", amount: "" },
 ];
 
-function Message({ title, text }) {
+function Message({ title, text, children }) {
     return (
         <section className="flex h-full flex-col items-center justify-center bg-slate-50 text-center">
             <p className="text-lg font-semibold text-slate-800">{title}</p>
             <p className="mt-1 max-w-sm text-sm text-slate-500">{text}</p>
+            {children}
         </section>
     );
 }
@@ -40,6 +44,9 @@ function Journal() {
     const [date, setDate] = useState(todayDate());
     const [narration, setNarration] = useState("");
     const [rows, setRows] = useState(emptyRows);
+
+    // null | { index } (index = -1 matlab koi row nahi, sirf ledger banana hai)
+    const [createTarget, setCreateTarget] = useState(null);
 
     useEffect(() => {
         if (!companyId) {
@@ -67,12 +74,43 @@ function Journal() {
     const isBalanced = totalDr > 0 && Math.round(difference * 100) === 0;
 
     const changeRow = (index, field, value) => {
+        if (field === "ledger" && value === NEW_LEDGER) {
+            setCreateTarget({ index });
+            return;
+        }
         setRows(rows.map((row, i) => (i === index ? { ...row, [field]: value } : row)));
     };
 
     const addRow = () => setRows([...rows, { side: "Dr", ledger: "", amount: "" }]);
 
     const removeRow = (index) => setRows(rows.filter((row, i) => i !== index));
+
+    // Ctrl + N / Alt + N: pehli khali row ke liye ledger banao
+    useNewLedgerShortcut(() => {
+        if (!companyId || loading || error || createTarget) return;
+
+        const emptyIndex = rows.findIndex((row) => !row.ledger);
+        if (emptyIndex >= 0) {
+            setCreateTarget({ index: emptyIndex });
+        } else {
+            setRows([...rows, { side: "Dr", ledger: "", amount: "" }]);
+            setCreateTarget({ index: rows.length });
+        }
+    });
+
+    const handleCreated = (list, created) => {
+        setLedgers(list);
+
+        if (created && createTarget.index >= 0) {
+            setRows(
+                rows.map((row, i) =>
+                    i === createTarget.index ? { ...row, ledger: created._id } : row
+                )
+            );
+        }
+
+        setCreateTarget(null);
+    };
 
     const handleSave = async () => {
         try {
@@ -102,6 +140,14 @@ function Journal() {
         }
     };
 
+    const modal = createTarget && (
+        <LedgerQuickCreate
+            companyId={companyId}
+            onClose={() => setCreateTarget(null)}
+            onCreated={handleCreated}
+        />
+    );
+
     if (!companyId) {
         return <Message title="No company selected" text="Select a company first to create vouchers." />;
     }
@@ -116,10 +162,21 @@ function Journal() {
 
     if (ledgers.length < 2) {
         return (
-            <Message
-                title="Not enough ledgers"
-                text="A journal voucher needs at least 2 ledgers. Create them first."
-            />
+            <>
+                <Message
+                    title="Not enough ledgers"
+                    text="A journal voucher needs at least 2 ledgers. Create them to continue."
+                >
+                    <button
+                        type="button"
+                        onClick={() => setCreateTarget({ index: -1 })}
+                        className="mt-4 h-10 rounded-lg bg-orange-500 px-5 text-sm font-semibold text-white hover:bg-orange-600"
+                    >
+                        + Create ledger
+                    </button>
+                </Message>
+                {modal}
+            </>
         );
     }
 
@@ -163,6 +220,7 @@ function Journal() {
                                 className={`${inputClass} max-w-xs`}
                             >
                                 <option value="">Select ledger</option>
+                                <option value={NEW_LEDGER}>+ Create new ledger</option>
                                 {ledgers.map((ledger) => (
                                     <option key={ledger._id} value={ledger._id}>
                                         {ledger.name}
@@ -201,7 +259,7 @@ function Journal() {
                         </div>
                     ))}
 
-                    <div className="px-4 py-3">
+                    <div className="flex items-center justify-between px-4 py-3">
                         <button
                             type="button"
                             onClick={addRow}
@@ -209,6 +267,7 @@ function Journal() {
                         >
                             + Add Row
                         </button>
+                        <span className="text-xs text-slate-400">Alt + N : new ledger</span>
                     </div>
                 </div>
             </div>
@@ -240,6 +299,8 @@ function Journal() {
                     </div>
                 </div>
             </VoucherFooter>
+
+            {modal}
         </section>
     );
 }

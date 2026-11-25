@@ -14,8 +14,11 @@ import {
     saveVoucher,
     getVoucherNo,
 } from "./voucherApi";
+import LedgerQuickCreate, { useNewLedgerShortcut } from "./LedgerQuickCreate";
 
 const emptyRow = { name: "", qty: "", unit: "Pcs", rate: "" };
+
+const NEW_LEDGER = "__new__";
 
 const rowAmount = (row) => Number(row.qty || 0) * Number(row.rate || 0);
 
@@ -36,6 +39,7 @@ function InvoiceVoucher({ type, title, subtitle, partyLabel, partyGroup }) {
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
     const [savedNo, setSavedNo] = useState("");
+    const [creating, setCreating] = useState(false);
 
     const [date, setDate] = useState(todayDate());
     const [party, setParty] = useState("");
@@ -62,6 +66,14 @@ function InvoiceVoucher({ type, title, subtitle, partyLabel, partyGroup }) {
     );
     const total = filledRows.reduce((sum, row) => sum + rowAmount(row), 0);
 
+    const changeParty = (value) => {
+        if (value === NEW_LEDGER) {
+            setCreating(true);
+            return;
+        }
+        setParty(value);
+    };
+
     const changeRow = (index, field, value) => {
         setRows(rows.map((row, i) => (i === index ? { ...row, [field]: value } : row)));
     };
@@ -69,6 +81,18 @@ function InvoiceVoucher({ type, title, subtitle, partyLabel, partyGroup }) {
     const addRow = () => setRows([...rows, emptyRow]);
 
     const removeRow = (index) => setRows(rows.filter((row, i) => i !== index));
+
+    // Ctrl + N / Alt + N: naya party ledger
+    useNewLedgerShortcut(() => {
+        if (!companyId || loading || error || creating) return;
+        setCreating(true);
+    });
+
+    const handleCreated = (list, created) => {
+        setLedgers(list);
+        if (created) setParty(created._id);
+        setCreating(false);
+    };
 
     const handleSave = async () => {
         try {
@@ -115,15 +139,6 @@ function InvoiceVoucher({ type, title, subtitle, partyLabel, partyGroup }) {
         return <Message title="Something went wrong" text={error} />;
     }
 
-    if (partyLedgers.length === 0) {
-        return (
-            <Message
-                title={`No ${partyGroup === "sundryDebtor" ? "customer" : "supplier"} ledger`}
-                text={`Create a ledger with group ${partyGroup} first, then come back here.`}
-            />
-        );
-    }
-
     return (
         <section className="flex h-full flex-col bg-slate-50">
             <VoucherHeader
@@ -143,10 +158,11 @@ function InvoiceVoucher({ type, title, subtitle, partyLabel, partyGroup }) {
                             </label>
                             <select
                                 value={party}
-                                onChange={(e) => setParty(e.target.value)}
+                                onChange={(e) => changeParty(e.target.value)}
                                 className={`${inputClass} w-64`}
                             >
                                 <option value="">Select party</option>
+                                <option value={NEW_LEDGER}>+ Create new ledger</option>
                                 {partyLedgers.map((ledger) => (
                                     <option key={ledger._id} value={ledger._id}>
                                         {ledger.name}
@@ -166,6 +182,10 @@ function InvoiceVoucher({ type, title, subtitle, partyLabel, partyGroup }) {
                                 className={`${inputClass} w-40`}
                             />
                         </div>
+
+                        <span className="ml-auto text-xs text-slate-400">
+                            Alt + N : new ledger
+                        </span>
                     </div>
 
                     <div className="grid grid-cols-[1fr_100px_100px_130px_140px_36px] gap-3 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
@@ -259,6 +279,17 @@ function InvoiceVoucher({ type, title, subtitle, partyLabel, partyGroup }) {
                 </p>
                 <h2 className="text-2xl font-bold text-orange-600">₹ {money(total)}</h2>
             </VoucherFooter>
+
+            {creating && (
+                <LedgerQuickCreate
+                    companyId={companyId}
+                    title={`Create ${partyLabel}`}
+                    groupFilter={(g) => g.key === partyGroup}
+                    defaultGroup={partyGroup}
+                    onClose={() => setCreating(false)}
+                    onCreated={handleCreated}
+                />
+            )}
         </section>
     );
 }
